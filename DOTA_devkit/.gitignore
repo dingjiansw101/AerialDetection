@@ -1,0 +1,13 @@
+build
+polyiou_wrap.cxx
+.idea/DOTAPreprocess.iml
+*.so
+*.jpg
+**/.idea/
+*pyc
+examplesplit
+__pycache__/
+.ipynb_checkpoints/
+Task1_merge/*.txt
+Task1/*.txt
+restoredexample/*
