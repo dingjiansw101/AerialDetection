@@ -633,6 +633,9 @@ def roi2droi(rois, hbb_trans='hbb2obb'):
         raise Exception
     return torch.cat((rois[:, 0].unsqueeze(1), obbs), 1)
 
+def roi2droi
+
+
 def polygonToRotRectangle_batch(bbox, with_module=True):
     """
     :param bbox: The polygon stored in format [x1, y1, x2, y2, x3, y3, x4, y4]
@@ -812,7 +815,7 @@ def droi2dbbox(drois):
 def dbbox2result(dbboxes, labels, num_classes):
     """
     Convert detection results to a list of numpy arrays.
-    :param dbboxes: (Tensor): shape (n, 6)
+    :param dbboxes: (Tensor): shape (n, 9)
     :param labels:  (Tensor): shape (n, )
     :param num_classes: (int), class number, including background class
     :return: list (ndarray): dbbox results of each class
@@ -820,7 +823,7 @@ def dbbox2result(dbboxes, labels, num_classes):
     # TODO: merge it with bbox2result
     if dbboxes.shape[0] == 0:
         return [
-            np.zeros((0, 6), dtype=np.float32) for i in range(num_classes - 1)
+            np.zeros((0, 9), dtype=np.float32) for i in range(num_classes - 1)
         ]
     else:
         dbboxes = dbboxes.cpu().numpy()

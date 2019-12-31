@@ -15,16 +15,9 @@
 - CUDNN 7.0.4
 - NCCL 2.1.15
 
-## Mirror sites
-
-We use AWS as the main site to host our model zoo, and maintain a mirror on aliyun.
-You can replace `https://s3.ap-northeast-2.amazonaws.com/open-mmlab` with `https://open-mmlab.oss-cn-beijing.aliyuncs.com` in model urls.
-
 ## Common settings
 
-- All FPN baselines and RPN-C4 baselines were trained using 8 GPU with a batch size of 16 (2 images per GPU). Other C4 baselines were trained using 8 GPU with a batch size of 8 (1 image per GPU).
-- All models were trained on `coco_2017_train`, and tested on the `coco_2017_val`.
-- We use distributed training and BN layer stats are fixed.
+- All FPN baselines and RPN-C4 baselines were trained using 8 GPU with a batch size of 16 (2 images per GPU). 
 - We adopt the same training schedules as Detectron. 1x indicates 12 epochs and 2x indicates 24 epochs, which corresponds to slightly less iterations than Detectron and the difference can be ignored.
 - All pytorch-style pretrained backbones on ImageNet are from PyTorch model zoo.
 - For fair comparison with other codebases, we report the GPU memory as the maximum value of `torch.cuda.max_memory_allocated()` for all 8 GPUs. Note that this value is usually less than what `nvidia-smi` shows.

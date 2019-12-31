@@ -2,25 +2,25 @@
 # Benchmarks for Object Detection in Aerial Images
 
 ## Introduction
-
-Aerial Detection is an open source code library for object detection in aerial images. 
+This codebase is created to build benchmarks for object detection in aerial images.
 It is modified from [mmdetection](https://github.com/open-mmlab/mmdetection).
 The master branch works with **PyTorch 1.1** or higher. If you would like to use PyTorch 0.4.1,
 please checkout to the [pytorch-0.4.1](https://github.com/open-mmlab/mmdetection/tree/pytorch-0.4.1) branch.
 
 ![detected_results](results.jpg)
-### Features
+### Main Features
 To adapt to object detection in aerial images, this repo has several unique and new features compared to the original [mmdetection](https://github.com/open-mmlab/mmdetection)
-- **Supporting Oriented Object Detection**
+- **Support Oriented Object Detection**
     
-    To support oriented object detection, this repo adopt two ways. The first is to implement OBB Head (OBBRoIHead and OBBDenseHead).
-    The second is function to transform instance mask to OBB.
+    In aerial images, objects are usually annotated by oriented bounding box (OBB).
+    To support oriented object detection, we implement OBB Head (OBBRoIHead and OBBDenseHead). 
+    Also, we provide functions to transfer mask predictions to OBBs.
 
-- **Cython bbox overlaps**
+- **Cython Bbox Overlaps**
     
     Since one patch image with the size of 1024 &times; 1024 may contain over 1000 instances
      in [DOTA](https://captain-whu.github.io/DOTA/), which make the bbox overlaps memroy consuming.
-     To avoid out of GPU memory, we use the calculate the bbox overlaps in cython. 
+     To avoid out of GPU memory, we calculate the bbox overlaps in cython. 
      The speed of cython version is close to the GPU version.
 
 - **Rotation Augmentation**
@@ -41,9 +41,18 @@ We provide a large set of baseline results and trained models available in the [
 
 ## Installation
 
-Please refer to [INSTALL.md](INSTALL.md) for installation and dataset preparation.
+- install mmdetection
 
+  Please refer to [INSTALL.md](INSTALL.md) for installation of mmdetection.
 
+- install DOTA_devkit
+```
+    sudo apt-get install swig
+    cd DOTA_devkit
+    swig -c++ -python polyiou.i
+    python setup.py build_ext --inplace
+```
+    
 ## Get Started
 
 Please see [GETTING_STARTED.md](GETTING_STARTED.md) for the basic usage of AerialDetection.
@@ -66,3 +75,8 @@ If you use our [DOTA](https://captain-whu.github.io/DOTA/) dataset, codebase or 
   year={2018}
 }
 ```
+## Thanks to the Third Party Libs
+
+[Pytorch](https://pytorch.org/)
+
+[mmdetection](https://github.com/open-mmlab/mmdetection)

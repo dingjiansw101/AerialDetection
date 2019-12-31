@@ -48,16 +48,6 @@ class FasterRCNNHBBOBB(BaseDetectorNew, RPNTestMixin, BBoxTestMixin,
                 rbbox_roi_extractor)
             self.rbbox_head = builder.build_head(rbbox_head)
 
-        # if mask_head is not None:
-        #     if mask_roi_extractor is not None:
-        #         self.mask_roi_extractor = builder.build_roi_extractor(
-        #             mask_roi_extractor)
-        #         self.share_roi_extractor = False
-        #     else:
-        #         self.share_roi_extractor = True
-        #         self.mask_roi_extractor = self.bbox_roi_extractor
-        #     self.mask_head = builder.build_head(mask_head)
-
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
 
@@ -86,10 +76,6 @@ class FasterRCNNHBBOBB(BaseDetectorNew, RPNTestMixin, BBoxTestMixin,
         if self.with_rbbox:
             self.rbbox_roi_extractor.init_weights()
             self.rbbox_head.init_weights()
-        # if self.with_mask:
-        #     self.mask_head.init_weights()
-        #     if not self.share_roi_extractor:
-        #         self.mask_roi_extractor.init_weights()
 
     def extract_feat(self, img):
         x = self.backbone(img)
@@ -172,56 +158,13 @@ class FasterRCNNHBBOBB(BaseDetectorNew, RPNTestMixin, BBoxTestMixin,
             if self.with_shared_head:
                 rbbox_feats = self.shared_head(rbbox_feats)
             rcls_score, rbbox_pred = self.rbbox_head(rbbox_feats)
-            # TODO: write bbox_head_rbbox
-            # bbox_targets = self.bbox_head.get_target(
-            #     sampling_results, gt_bboxes, gt_labels, self.train_cfg.rcnn)
-            # loss_bbox = self.bbox_head.loss(cls_score, bbox_pred,
-            #                                 *bbox_targets)
-            # losses.update(loss_bbox)
 
-            ## rbbox
-            # TODO: implement the rbbox_get_target function
             rbbox_targets = self.rbbox_head.get_target(
                 sampling_results, gt_masks, gt_labels, self.train_cfg.rcnn)
 
             loss_rbbox = self.rbbox_head.loss(rcls_score, rbbox_pred,
                                             *rbbox_targets)
             losses.update(loss_rbbox)
-
-        # mask head forward and loss
-        # if self.with_mask:
-        #     if not self.share_roi_extractor:
-        #         pos_rois = bbox2roi(
-        #             [res.pos_bboxes for res in sampling_results])
-        #         mask_feats = self.mask_roi_extractor(
-        #             x[:self.mask_roi_extractor.num_inputs], pos_rois)
-        #         if self.with_shared_head:
-        #             mask_feats = self.shared_head(mask_feats)
-        #     else:
-        #         pos_inds = []
-        #         device = bbox_feats.device
-        #         for res in sampling_results:
-        #             pos_inds.append(
-        #                 torch.ones(
-        #                     res.pos_bboxes.shape[0],
-        #                     device=device,
-        #                     dtype=torch.uint8))
-        #             pos_inds.append(
-        #                 torch.zeros(
-        #                     res.neg_bboxes.shape[0],
-        #                     device=device,
-        #                     dtype=torch.uint8))
-        #         pos_inds = torch.cat(pos_inds)
-        #         mask_feats = bbox_feats[pos_inds]
-        #     mask_pred = self.mask_head(mask_feats)
-        #
-        #     mask_targets = self.mask_head.get_target(
-        #         sampling_results, gt_masks, self.train_cfg.rcnn)
-        #     pos_labels = torch.cat(
-        #         [res.pos_gt_labels for res in sampling_results])
-        #     loss_mask = self.mask_head.loss(mask_pred, mask_targets,
-        #                                     pos_labels)
-        #     losses.update(loss_mask)
 
         return losses
 
