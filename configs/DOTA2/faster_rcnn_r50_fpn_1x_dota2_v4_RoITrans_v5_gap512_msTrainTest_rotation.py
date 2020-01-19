@@ -44,7 +44,6 @@ model = dict(
         target_stds=[0.1, 0.1, 0.2, 0.2, 0.1],
         reg_class_agnostic=True,
         with_module=False,
-        hbb_trans='hbb2obb_v2',
         loss_cls=dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
         loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0)),
@@ -126,7 +125,6 @@ train_cfg = dict(
     ])
 test_cfg = dict(
     rpn=dict(
-        # TODO: test nms 2000
         nms_across_levels=False,
         nms_pre=2000,
         nms_post=2000,
@@ -135,7 +133,7 @@ test_cfg = dict(
         min_bbox_size=0),
     rcnn=dict(
         score_thr=0.05,
-        nms=dict(type='py_cpu_nms_poly_fast3', iou_thr=0.1),
+        nms=dict(type='py_cpu_nms_poly_fast', iou_thr=0.1),
         # nms=dict(type='pesudo_nms_poly', iou_thr=0.1),
         max_per_img=2000)
     # soft-nms is also supported for rcnn testing

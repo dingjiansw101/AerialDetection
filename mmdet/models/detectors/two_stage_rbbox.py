@@ -208,7 +208,6 @@ class TwoStageDetectorRbbox(BaseDetector, RPNTestMixin, BBoxTestMixin,
 
         det_bboxes, det_labels = self.simple_test_bboxes(
             x, img_meta, proposal_list, self.test_cfg.rcnn, rescale=rescale)
-        # TODO: implement the dbbox2result
         # import pdb
         # pdb.set_trace()
         bbox_results = dbbox2result(det_bboxes, det_labels,

@@ -7,8 +7,7 @@ except:
     import DOTA_devkit.dota_utils as util
 import DOTA_devkit.polyiou as polyiou
 
-def py_cpu_nms_poly_fast3(dets, thresh):
-    # TODO: test it
+def py_cpu_nms_poly_fast(dets, thresh):
     try:
         obbs = dets[:, 0:-1]
     except:
@@ -154,7 +153,7 @@ def obb_hybrid_NMS(thresh_obb, dets, thresh_hbb=0.5):
     h_keep = np.array(h_keep)
 
     keeped_o_dets = dets[h_keep, :]
-    o_keep = py_cpu_nms_poly_fast3(keeped_o_dets, thresh_obb)
+    o_keep = py_cpu_nms_poly_fast(keeped_o_dets, thresh_obb)
 
     final_keep = h_keep[o_keep]
 

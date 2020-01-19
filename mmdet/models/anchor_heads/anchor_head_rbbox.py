@@ -8,7 +8,7 @@ from mmcv.cnn import normal_init
 from mmdet.core import (AnchorGenerator, anchor_target_rbbox, delta2bbox,
                         delta2dbbox, delta2dbbox_v3, multi_apply, multiclass_nms,
                         multiclass_nms_rbbox)
-from mmdet.core.bbox.transforms_rbbox import hbb2obb, hbbpolyobb, hbb2obb_v2
+from mmdet.core.bbox.transforms_rbbox import hbb2obb_v2
 from ..builder import build_loss
 from ..registry import HEADS
 
@@ -41,7 +41,7 @@ class AnchorHeadRbbox(nn.Module):
                  target_means=(.0, .0, .0, .0, .0),
                  target_stds=(1.0, 1.0, 1.0, 1.0, 1.0),
                  with_module=True,
-                 hbb_trans='hbb2obb',
+                 hbb_trans='hbb2obb_v2',
                  loss_cls=dict(
                      type='CrossEntropyLoss',
                      use_sigmoid=True,
@@ -267,15 +267,16 @@ class AnchorHeadRbbox(nn.Module):
             # import pdb
             # print('in anchor_head rbbox')
             # pdb.set_trace()
-            if self.hbb_trans == 'hbb2obb':
-                rbbox_ex_anchors = hbb2obb(anchors)
-            elif self.hbb_trans == 'hbbpolyobb':
-                rbbox_ex_anchors = hbbpolyobb(anchors)
-            elif self.hbb_trans == 'hbb2obb_v2':
-                rbbox_ex_anchors = hbb2obb_v2(anchors)
-            else:
-                print('no such hbb trans method')
-                raise NameError
+            # if self.hbb_trans == 'hbb2obb':
+            #     rbbox_ex_anchors = hbb2obb(anchors)
+            # elif self.hbb_trans == 'hbbpolyobb':
+            #     rbbox_ex_anchors = hbbpolyobb(anchors)
+            # elif self.hbb_trans == 'hbb2obb_v2':
+            #     rbbox_ex_anchors = hbb2obb_v2(anchors)
+            # else:
+            #     print('no such hbb trans method')
+            #     raise NameError
+            rbbox_ex_anchors = hbb2obb_v2(anchors)
             if self.with_module:
                 bboxes = delta2dbbox(rbbox_ex_anchors, bbox_pred, self.target_means,
                                      self.target_stds, img_shape)

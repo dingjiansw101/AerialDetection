@@ -50,7 +50,6 @@ model = dict(
         target_stds=[0.1, 0.1, 0.2, 0.2, 0.1],
         reg_class_agnostic=False,
         with_module=False,
-        hbb_trans='hbb2obb_v2',
         loss_cls=dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
         loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0)))
@@ -105,7 +104,7 @@ test_cfg = dict(
     rcnn=dict(
         score_thr=0.05,
         # score_thr=0.1,
-        nms=dict(type='py_cpu_nms_poly_fast3', iou_thr=0.1),
+        nms=dict(type='py_cpu_nms_poly_fast', iou_thr=0.1),
         # nms=dict(type='pesudo_nms_poly', iou_thr=0.1),
         # max_per_img=1000)
         max_per_img = 2000)

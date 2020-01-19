@@ -22,14 +22,14 @@ import torch
 import json
 from mmcv import Config
 import sys
-# sys.path.insert(0, '../')
-from DOTA_devkit.ResultMerge_multi_process_refactor import *
-
+sys.path.insert(0, '../')
+# import DOTA_devkit.ResultMerge_multi_process as RM
+from DOTA_devkit.ResultMerge_multi_process import *
+from DOTA_devkit.ResultMerge_multi_process import mergebypoly_multiprocess
+import pdb; pdb.set_trace()
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     parser.add_argument('--config', default='configs/DOTA/faster_rcnn_r101_fpn_1x_dota2_v3_RoITrans_v5.py')
-    # parser.add_argument('--datatype', default=r'dota1',
-    #                     help='choose dataset to evaluate, dota1, dota2 or hrsc_l1')
     parser.add_argument('--type', default=r'HBB',
                         help='parse type of detector')
     args = parser.parse_args()
@@ -62,9 +62,7 @@ def parse_results(config_file, resultfile, dstpath, type):
 
     data_test = cfg.data['test']
     dataset = get_dataset(data_test)
-    # pdb.set_trace()
     outputs = mmcv.load(resultfile)
-    classnames = dataset.CLASSES
     if type == 'POLY':
         #  dota1 has tested
         obb_results_dict = POLYDetComp4(dataset, outputs)
@@ -89,8 +87,6 @@ def parse_results(config_file, resultfile, dstpath, type):
         if not os.path.exists(os.path.join(dstpath, 'Task1_results')):
             os.makedirs(os.path.join(dstpath, 'Task1_results'))
 
-        # import pdb
-        # pdb.set_trace()
         for cls in obb_results_dict:
             with open(os.path.join(dstpath, 'Task1_results', cls + '.txt'), 'w') as obb_f_out:
                 for index, outline in enumerate(obb_results_dict[cls]):
@@ -102,8 +98,8 @@ def parse_results(config_file, resultfile, dstpath, type):
         if not os.path.exists(os.path.join(dstpath, 'Task1_results_nms')):
             os.makedirs(os.path.join(dstpath, 'Task1_results_nms'))
 
-        mergebypoly(os.path.join(dstpath, 'Task1_results'),
-                os.path.join(dstpath, 'Task1_results_nms'), nms_type=r'py_cpu_nms_poly_fast3', o_thresh=current_thresh)
+        mergebypoly_multiprocess(os.path.join(dstpath, 'Task1_results'),
+                                 os.path.join(dstpath, 'Task1_results_nms'), nms_type=r'py_cpu_nms_poly_fast', o_thresh=current_thresh)
 
         OBB2HBB(os.path.join(dstpath, 'Task1_results_nms'),
                          os.path.join(dstpath, 'Transed_Task2_results_nms'))

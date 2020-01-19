@@ -8,7 +8,7 @@ def pesudo_nms_poly(dets, iou_thr):
     keep = torch.range(0, len(dets))
     return dets, keep
 
-def py_cpu_nms_poly_fast3(dets, iou_thr):
+def py_cpu_nms_poly_fast(dets, iou_thr):
     # TODO: check the type numpy()
     if dets.shape[0] == 0:
         keep = dets.new_zeros(0, dtype=torch.long)
@@ -88,8 +88,7 @@ def py_cpu_nms_poly_fast3(dets, iou_thr):
 
     return torch.from_numpy(dets[keep, :]).to(device), torch.from_numpy(np.array(keep)).to(device)
 
-def py_cpu_nms_poly_fast3_np(dets, thresh):
-    # TODO: test it
+def py_cpu_nms_poly_fast_np(dets, thresh):
     try:
         obbs = dets[:, 0:-1]
     except:
@@ -258,7 +257,7 @@ def obb_hybrid_NMS(dets, thresh_hbb=0.5, thresh_obb=0.3):
     h_keep = py_cpu_nms(h_dets, thresh_hbb)
 
     keeped_o_dets = dets[h_keep, :]
-    o_keep = py_cpu_nms_poly_fast3(keeped_o_dets, thresh_obb)
+    o_keep = py_cpu_nms_poly_fast(keeped_o_dets, thresh_obb)
 
     final_keep = h_keep[o_keep]
 

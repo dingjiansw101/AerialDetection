@@ -31,6 +31,8 @@ To adapt to object detection in aerial images, this repo has several unique and 
 
     Currently, we implement two types of rotated RoI Warping (Rotated RoI Align and Rotated Position Sensitive RoI Align).
 
+- **Large Size Image Inference Demo**
+   
 ## License
 
 This project is released under the [Apache 2.0 license](LICENSE).
@@ -55,7 +57,7 @@ We provide a large set of baseline results and trained models available in the [
     
 ## Get Started
 
-Please see [GETTING_STARTED.md](GETTING_STARTED.md) for the basic usage of AerialDetection.
+Please see [GETTING_STARTED.md](GETTING_STARTED.md) for the basic usage of mmdetection.
 
 ## Contributing
 

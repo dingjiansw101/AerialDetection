@@ -12,7 +12,7 @@ from .DOTA2 import DOTA2Dataset
 from .DOTA2 import DOTA2Dataset_v2
 from .DOTA2 import DOTA2Dataset_v3, DOTA2Dataset_v4
 from .HRSC import HRSCL1Dataset
-from .DOTA1_5 import DOTA1_5Dataset, DOTA1_5Dataset_v3, DOTA1_5Dataset_v2, DOTA1_5Dataset_v4
+from .DOTA1_5 import DOTA1_5Dataset, DOTA1_5Dataset_v3, DOTA1_5Dataset_v2
 
 __all__ = [
     'CustomDataset', 'XMLDataset', 'CocoDataset', 'DOTADataset', 'DOTA2Dataset',
@@ -21,5 +21,5 @@ __all__ = [
     'show_ann', 'get_dataset', 'ConcatDataset', 'RepeatDataset',
     'ExtraAugmentation', 'HRSCL1Dataset', 'DOTADataset_v3',
     'DOTA1_5Dataset', 'DOTA1_5Dataset_v3', 'DOTA1_5Dataset_v2',
-    'DOTA2Dataset_v4', 'DOTA1_5Dataset_v4'
+    'DOTA2Dataset_v4'
 ]

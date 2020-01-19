@@ -75,51 +75,6 @@ def DOTA2COCOTrain(srcpath, destfile, cls_names, difficult='2'):
             image_id = image_id + 1
         json.dump(data_dict, f_out)
 
-def DOTA2COCOTestWF(srcpath, destfile, cls_names):
-    imageparent = os.path.join(srcpath, 'images')
-    labelparent = os.path.join(srcpath, 'labelTxt')
-    data_dict = {}
-    info = {'contributor': 'captain group',
-           'data_created': '2018',
-           'description': 'This is 1.0 version of DOTA dataset.',
-           'url': 'http://captain.whu.edu.cn/DOTAweb/',
-           'version': '1.0',
-           'year': 2018}
-    data_dict['info'] = info
-    data_dict['images'] = []
-    data_dict['categories'] = []
-    for idex, name in enumerate(cls_names):
-        single_cat = {'id': idex + 1, 'name': name, 'supercategory': name}
-        data_dict['categories'].append(single_cat)
-
-    inst_count = 1
-    image_id = 1
-    with open(destfile, 'w') as f_out:
-        filenames = util.GetFileFromThisRootDir(labelparent)
-        for file in filenames:
-            objects = util.parse_dota_poly2(file)
-            if len(objects) == 0:
-                continue
-            basename = util.custombasename(file)
-            # image_id = int(basename[1:])
-
-            imagepath = os.path.join(imageparent, basename + '.png')
-            # img = cv2.imread(imagepath)
-            img = Image.open(imagepath)
-            # height, width, c = img.shape
-            height = img.height
-            width = img.width
-
-            single_image = {}
-            single_image['file_name'] = basename + '.png'
-            single_image['id'] = image_id
-            single_image['width'] = width
-            single_image['height'] = height
-            data_dict['images'].append(single_image)
-
-            image_id = image_id + 1
-        json.dump(data_dict, f_out)
-
 def DOTA2COCOTest(srcpath, destfile, cls_names):
     imageparent = os.path.join(srcpath, 'images')
     # labelparent = os.path.join(srcpath, 'labelTxt')

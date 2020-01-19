@@ -3,9 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from mmdet.core import delta2dbbox, multiclass_nms_rbbox, \
-    bbox_target_rbbox, accuracy, hbb2obb, rbbox_target_rbbox,\
+    bbox_target_rbbox, accuracy, rbbox_target_rbbox,\
     choose_best_Rroi_batch, delta2dbbox_v2, \
-    Pesudomulticlass_nms_rbbox, delta2dbbox_v3, hbbpolyobb, hbb2obb_v2
+    Pesudomulticlass_nms_rbbox, delta2dbbox_v3, hbb2obb_v2
 from ..builder import build_loss
 from ..registry import HEADS
 
@@ -26,7 +26,7 @@ class BBoxHeadRbbox(nn.Module):
                  target_stds=[0.1, 0.1, 0.2, 0.2, 0.1],
                  reg_class_agnostic=False,
                  with_module=True,
-                 hbb_trans='hbb2obb',
+                 hbb_trans='hbb2obb_v2',
                  loss_cls=dict(
                      type='CrossEntropyLoss',
                      use_sigmoid=False,
@@ -188,16 +188,7 @@ class BBoxHeadRbbox(nn.Module):
 
         # TODO: check and simplify it
         if rois.size(1) == 5:
-            if self.hbb_trans == 'hbb2obb':
-                obbs = hbb2obb(rois[:, 1:])
-            elif self.hbb_trans == 'hbbpolyobb':
-                obbs = hbbpolyobb(rois[:, 1:])
-                # import pdb
-                # pdb.set_trace()
-            elif self.hbb_trans == 'hbb2obb_v2':
-                obbs = hbb2obb_v2(rois[:, 1:])
-            else:
-                raise NameError('no such hbbtrans method')
+            obbs = hbb2obb_v2(rois[:, 1:])
         elif rois.size(1) == 6:
             obbs = rois[:, 1:]
         else:

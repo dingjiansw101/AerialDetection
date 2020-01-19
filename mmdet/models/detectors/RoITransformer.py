@@ -234,7 +234,6 @@ class RoITransformer(BaseDetectorNew, RPNTestMixin):
             if self.with_shared_head_rbbox:
                 rbbox_feats = self.shared_head_rbbox(rbbox_feats)
             cls_score, rbbox_pred = self.rbbox_head(rbbox_feats)
-            # TODO: the get_targets are different with the one in with_bbox
             rbbox_targets = self.rbbox_head.get_target_rbbox(sampling_results, gt_obbs,
                                                         gt_labels, self.train_cfg.rcnn[1])
             loss_rbbox = self.rbbox_head.loss(cls_score, rbbox_pred, *rbbox_targets)

@@ -57,10 +57,8 @@ The git commit id will be written to the version number with step e, e.g. 0.6.0+
 
 2. Following the above instructions, AerialDetection is installed on `dev` mode, any modifications to the code will take effect without installing it again.
 
-### Install DOTA_devkit
-
 ### Prepare DOTA dataset.
-You need to 
+
 It is recommended to symlink the dataset root to `$MMDETECTION/data`.
 
 ```
@@ -93,6 +91,26 @@ dota1_1024
     ├── DOTA_trainval1024_ms.json
     ├── images
     └── labelTxt
+```
+```
+dota1_1024_v2
+├── test1024
+│   ├── DOTA_test1024.json
+│   ├── images
+│   └── labelTxt
+├── test1024_ms
+│   ├── DOTA_test1024_ms.json
+│   ├── images
+│   └── labelTxt
+├── trainval1024
+│   ├── DOTA_trainval1024.json
+│   ├── images
+│   └── labelTxt
+└── trainval1024_ms
+      ├── DOTA_trainval1024_ms.json
+      ├── images
+      └── labelTxt
+
 ```
 ```
 dota2_1024

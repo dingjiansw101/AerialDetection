@@ -1,6 +1,6 @@
 import torch
-# from DOTA_devkit.ResultMerge_multi_process import py_cpu_nms_poly_fast3
-from mmdet.ops.nms.rnms_wrapper import py_cpu_nms_poly_fast3
+# from DOTA_devkit.ResultMerge_multi_process import py_cpu_nms_poly_fast
+from mmdet.ops.nms.rnms_wrapper import py_cpu_nms_poly_fast
 from mmdet.ops.nms import rnms_wrapper
 # from mmdet.ops.poly_nms import poly_nms_wrapper
 from mmdet.core import RotBox2Polys, RotBox2Polys_torch
@@ -28,7 +28,7 @@ def multiclass_nms_rbbox(multi_bboxes,
     bboxes, labels = [], []
     nms_cfg_ = nms_cfg.copy()
     # nms_type = nms_cfg_.pop('type', 'nms')
-    # nms_op = py_cpu_nms_poly_fast3
+    # nms_op = py_cpu_nms_poly_fast
 
     nms_type = nms_cfg_.pop('type', 'nms')
     # TODO: refactor it
@@ -99,7 +99,7 @@ def Pesudomulticlass_nms_rbbox(multi_bboxes,
     bboxes, labels = [], []
     # nms_cfg_ = nms_cfg.copy()
     # nms_type = nms_cfg_.pop('type', 'nms')
-    # nms_op = py_cpu_nms_poly_fast3
+    # nms_op = py_cpu_nms_poly_fast
 
     # nms_type = nms_cfg_.pop('type', 'nms')
     # nms_op = getattr(rnms_wrapper, nms_type)

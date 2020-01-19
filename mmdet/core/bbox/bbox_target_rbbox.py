@@ -2,7 +2,7 @@ import torch
 
 from .transforms_rbbox import dbbox2delta, delta2dbbox, \
     mask2poly, get_best_begin_point, polygonToRotRectangle_batch\
-    , hbb2obb, best_match_dbbox2delta, delta2dbbox_v3, dbbox2delta_v3, hbbpolyobb, hbb2obb_v2
+    , best_match_dbbox2delta, delta2dbbox_v3, dbbox2delta_v3, hbb2obb_v2
 from ..utils import multi_apply
 
 
@@ -17,7 +17,7 @@ def bbox_target_rbbox(pos_bboxes_list,
                 target_stds=[1.0, 1.0, 1.0, 1.0, 1.0],
                 concat=True,
                 with_module=True,
-                hbb_trans='hbb2obb'):
+                hbb_trans='hbb2obb_v2'):
     # import pdb
     # pdb.set_trace()
     labels, label_weights, bbox_targets, bbox_weights = multi_apply(
@@ -52,7 +52,7 @@ def bbox_target_rbbox_single(pos_bboxes,
                        target_means=[.0, .0, .0, .0, .0],
                        target_stds=[1.0, 1.0, 1.0, 1.0, 1.0],
                        with_module=True,
-                       hbb_trans='hbb2obb'):
+                       hbb_trans='hbb2obb_v2'):
     """
 
     :param pos_bboxes: Tensor, shape (n, 4)
@@ -90,15 +90,15 @@ def bbox_target_rbbox_single(pos_bboxes,
     pos_gt_obbs = torch.from_numpy(polygonToRotRectangle_batch(pos_gt_bp_polys, with_module)).to(pos_bboxes.device)
     # print('pos_gt_obbs: ', pos_gt_obbs)
     if pos_bboxes.size(1) == 4:
-        if hbb_trans == 'hbb2obb':
-            pos_ext_bboxes = hbb2obb(pos_bboxes)
-        elif hbb_trans == 'hbbpolyobb':
-            pos_ext_bboxes = hbbpolyobb(pos_bboxes)
-        elif hbb_trans == 'hbb2obb_v2':
-            pos_ext_bboxes = hbb2obb_v2(pos_bboxes)
-        else:
-            print('no such hbb trans method')
-            raise Exception
+        # if hbb_trans == 'hbb2obb':
+        #     pos_ext_bboxes = hbb2obb(pos_bboxes)
+        # elif hbb_trans == 'hbbpolyobb':
+        #     pos_ext_bboxes = hbbpolyobb(pos_bboxes)
+        # elif hbb_trans == 'hbb2obb_v2':
+        pos_ext_bboxes = hbb2obb_v2(pos_bboxes)
+        # else:
+        #     print('no such hbb trans method')
+        #     raise Exception
     else:
         pos_ext_bboxes = pos_bboxes
     if num_pos > 0:

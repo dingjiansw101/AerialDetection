@@ -1,7 +1,7 @@
 import torch
 
 from ..bbox import assign_and_sample, build_assigner, \
-    PseudoSampler, bbox2delta, dbbox2delta, hbb2obb, dbbox2delta_v3, hbbpolyobb, hbb2obb_v2
+    PseudoSampler, bbox2delta, dbbox2delta, dbbox2delta_v3, hbb2obb_v2
 from ..utils import multi_apply
 from mmdet.core.bbox.transforms_rbbox import gt_mask_bp_obbs
 
@@ -20,7 +20,7 @@ def anchor_target_rbbox(anchor_list,
                   sampling=True,
                   unmap_outputs=True,
                   with_module=True,
-                  hbb_trans='hbb2obb'):
+                  hbb_trans='hbb2obb_v2'):
     """Compute regression and classification targets for anchors.
 
     Args:
@@ -113,7 +113,7 @@ def anchor_target_rbbox_single(flat_anchors,
                          sampling=True,
                          unmap_outputs=True,
                          with_module=True,
-                         hbb_trans='hbb2obb'):
+                         hbb_trans='hbb2obb_v2'):
     inside_flags = anchor_inside_flags(flat_anchors, valid_flags,
                                        img_meta['img_shape'][:2],
                                        cfg.allowed_border)
@@ -137,8 +137,6 @@ def anchor_target_rbbox_single(flat_anchors,
                                               gt_bboxes)
 
     num_valid_anchors = anchors.shape[0]
-
-    # TODO: finish it, change the shape
     # anchors shape, [num_anchors, 4]
     # bbox_targets = torch.zeros_like(anchors)
     # bbox_weights = torch.zeros_like(anchors)
@@ -162,19 +160,19 @@ def anchor_target_rbbox_single(flat_anchors,
     gt_obbs_ts = torch.from_numpy(gt_obbs).to(sampling_result.pos_bboxes.device)
     pos_gt_obbs_ts = gt_obbs_ts[pos_assigned_gt_inds]
     if len(pos_inds) > 0:
-        # TODO: change it to dbbox2delta
         # pos_bbox_targets = bbox2delta(sampling_result.pos_bboxes,
         #                               sampling_result.pos_gt_bboxes,
         #                               target_means, target_stds)
-        if hbb_trans == 'hbb2obb':
-            pos_ext_bboxes = hbb2obb(sampling_result.pos_bboxes)
-        elif hbb_trans == 'hbbpolyobb':
-            pos_ext_bboxes = hbbpolyobb(sampling_result.pos_bboxes)
-        elif hbb_trans == 'hbb2obb_v2':
-            pos_ext_bboxes = hbb2obb_v2(sampling_result.pos_bboxes)
-        else:
-            print('no such hbb2obb trans function')
-            raise Exception
+        # if hbb_trans == 'hbb2obb':
+        #     pos_ext_bboxes = hbb2obb(sampling_result.pos_bboxes)
+        # elif hbb_trans == 'hbbpolyobb':
+        #     pos_ext_bboxes = hbbpolyobb(sampling_result.pos_bboxes)
+        # elif hbb_trans == 'hbb2obb_v2':
+        #     pos_ext_bboxes = hbb2obb_v2(sampling_result.pos_bboxes)
+        # else:
+        #     print('no such hbb2obb trans function')
+        #     raise Exception
+        pos_ext_bboxes = hbb2obb_v2(sampling_result.pos_bboxes)
         if with_module:
             pos_bbox_targets = dbbox2delta(pos_ext_bboxes,
                                            pos_gt_obbs_ts,

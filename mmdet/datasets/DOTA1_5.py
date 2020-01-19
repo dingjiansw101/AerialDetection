@@ -49,11 +49,6 @@ class DOTA1_5Dataset_v2(CocoDataset):
             if ann.get('ignore', False):
                 continue
             x1, y1, w, h = ann['bbox']
-            # This config verified
-            # if ann['area'] <= 0 or w < 10 or h < 10:
-            #     continue
-            # if ann['area'] <= 50 or max(w, h) < 10:
-            #     continue
             if ann['area'] <= 80 or max(w, h) < 12:
                 continue
             bbox = [x1, y1, x1 + w - 1, y1 + h - 1]
@@ -129,13 +124,7 @@ class DOTA1_5Dataset_v3(CocoDataset):
             if ann.get('ignore', False):
                 continue
             x1, y1, w, h = ann['bbox']
-            # This config verified
-            # if ann['area'] <= 0 or w < 10 or h < 10:
-            #     continue
-            # if ann['area'] <= 50 or max(w, h) < 10:
-            #     continue
-            # if ann['area'] <= 225 or max(w, h) < 12:
-            #     continue
+
             # TODO: make can be set by a more flexible way
             if ann['area'] <= 140 or max(w, h) < 12:
                 continue

@@ -570,20 +570,6 @@ def xy2wh(boxes):
 
     return torch.cat((ex_ctr_x.unsqueeze(1), ex_ctr_y.unsqueeze(1), ex_widths.unsqueeze(1), ex_heights.unsqueeze(1)), 1)
 
-def hbb2obb(bboxes):
-    """
-
-    :param bboxes: shape (n, 4) (xmin, ymin, xmax, ymax)
-    :return: dbboxes: shape (n, 5) (x_ctr, y_ctr, w, h, angle)
-    """
-    num_boxes = bboxes.size(0)
-    c_bboxes = xy2wh(bboxes)
-    initial_angles = -c_bboxes.new_ones((num_boxes, 1)) * np.pi / 2
-    # initial_angles = -torch.ones((num_boxes, 1)) * np.pi/2
-    dbboxes = torch.cat((c_bboxes, initial_angles), 1)
-
-    return dbboxes
-
 def hbb2obb_v2(boxes):
     """
     fix a bug
@@ -602,39 +588,32 @@ def hbb2obb_v2(boxes):
 
     return dbboxes
 
-def hbbpolyobb(bboxes):
-    """
-    :param bboxes: shape (n, 4) (xmin, ymin, xmax, ymax)
-    :return: dbboxes: shape (n, 5) (x_ctr, y_ctr, w, h, angle)
-    """
-    num_boxes = bboxes.size(0)
-    xmins, ymins, xmaxs, ymaxs = bboxes[:, 0], bboxes[:, 1], bboxes[:, 2], bboxes[:, 3]
-    polys = torch.cat((xmins.unsqueeze(1), ymins.unsqueeze(1), xmaxs.unsqueeze(1), ymins.unsqueeze(1),
-                       xmaxs.unsqueeze(1), ymaxs.unsqueeze(1), xmins.unsqueeze(1), ymaxs.unsqueeze(1)), 1)
-    # TODO: speed it up
-    dbboxes = polygonToRotRectangle_batch(polys.cpu(), with_module=False)
-    dbboxes = torch.from_numpy(dbboxes).float().to(bboxes.device)
-    return  dbboxes
+# def roi2droi(rois, hbb_trans='hbb2obb'):
+#     """
+#     :param rois: Tensor: shape (n, 5), [batch_ind, x1, y1, x2, y2]
+#     :return: drois: Tensor: shape (n, 6), [batch_ind, x, y, w, h, theta]
+#     """
+#     hbbs = rois[:, 1:]
+#     if hbb_trans == 'hbb2obb':
+#         obbs = hbb2obb(hbbs)
+#     elif hbb_trans == 'hbbpolyobb':
+#         obbs = hbbpolyobb(hbbs)
+#     elif hbb_trans == 'hbb2obb_v2':
+#         obbs = hbb2obb_v2(hbbs)q
+#     else:
+#         print('not such hbbtrans method')
+#         raise Exception
+#     return torch.cat((rois[:, 0].unsqueeze(1), obbs), 1)
 
-def roi2droi(rois, hbb_trans='hbb2obb'):
+def roi2droi(rois):
     """
     :param rois: Tensor: shape (n, 5), [batch_ind, x1, y1, x2, y2]
     :return: drois: Tensor: shape (n, 6), [batch_ind, x, y, w, h, theta]
     """
     hbbs = rois[:, 1:]
-    if hbb_trans == 'hbb2obb':
-        obbs = hbb2obb(hbbs)
-    elif hbb_trans == 'hbbpolyobb':
-        obbs = hbbpolyobb(hbbs)
-    elif hbb_trans == 'hbb2obb_v2':
-        obbs = hbb2obb_v2(hbbs)
-    else:
-        print('not such hbbtrans method')
-        raise Exception
+    obbs = hbb2obb_v2(hbbs)
+
     return torch.cat((rois[:, 0].unsqueeze(1), obbs), 1)
-
-def roi2droi
-
 
 def polygonToRotRectangle_batch(bbox, with_module=True):
     """

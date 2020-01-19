@@ -84,40 +84,6 @@ class Test_transforms_rbbox(unittest.TestCase):
                                      [34.45, 27.6, 21.1, 50.2]])
         np.testing.assert_almost_equal(expected_outputs, outputs.numpy())
 
-    def test_hbb2obb(self):
-
-        bboxes = torch.DoubleTensor([[30, 34.4, 53.2, 62.3]])
-
-        outputs = hbb2obb(bboxes)
-
-        expected_targets = np.array([[41.6, 48.35, 24.2, 28.9, -np.pi/2]])
-
-        np.testing.assert_almost_equal(expected_targets, outputs.numpy())
-
-    def test_hbbpolyobb(self):
-
-        bboxes = torch.DoubleTensor([[30, 34.4, 53.2, 62.3]])
-
-        hbb2obb_outputs = hbb2obb(bboxes)
-        hbbpolyobb_outputs = hbbpolyobb(bboxes)
-        # print('hbb2obb: ', hbb2obb_outputs)
-        # print('hbbpolyobb: ', hbbpolyobb_outputs)
-
-    def test_hbb2obb_v2(self):
-        num_rois = 4
-        image_width = 1024
-        image_height = 1024
-        rois_data = np.zeros([num_rois, 4])
-        rois_data[:, [0, 2]] = np.sort(np.random.rand(num_rois, 2) * (image_width - 1))
-        rois_data[:, [1, 3]] = np.sort(np.random.rand(num_rois, 2) * (image_height - 1))
-        bboxes = torch.from_numpy(rois_data)
-        hbbpolyobb_outputs = hbbpolyobb(bboxes)
-        hbb2obb_v2_outputs = hbb2obb_v2(bboxes)
-        print('hbbpolyobb: ', hbbpolyobb_outputs)
-        print('hbb2obb_v2: ', hbb2obb_v2_outputs)
-        np.testing.assert_almost_equal(hbbpolyobb_outputs.numpy(), hbb2obb_v2_outputs.numpy(), decimal=4)
-
-
     def test_dbbox2roi(self):
 
         dbbox_list = [torch.DoubleTensor([[2, 3, 39, 30, np.pi/2],

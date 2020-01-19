@@ -1,6 +1,6 @@
 import torch
 from bbox import bbox_overlaps_cython
-from bbox_v2 import bbox_overlaps_cython_v2
+# from bbox_v2 import bbox_overlaps_cython_v2
 import numpy as np
 import DOTA_devkit.polyiou as polyiou
 from mmdet.core.bbox.transforms_rbbox import RotBox2Polys, poly2bbox, mask2poly, Tuplelist2Polylist
@@ -12,12 +12,12 @@ def bbox_overlaps_cy(boxes, query_boxes):
     ious = bbox_overlaps_cython(boxes_np, query_boxes_np)
     return torch.from_numpy(ious).to(box_device)
 
-def bbox_overlaps_cy2(boxes, query_boxes):
-    box_device = boxes.device
-    boxes_np = boxes.cpu().numpy().astype(np.float)
-    query_boxes_np = query_boxes.cpu().numpy().astype(np.float)
-    ious = bbox_overlaps_cython_v2(boxes_np, query_boxes_np)
-    return torch.from_numpy(ious).to(box_device)
+# def bbox_overlaps_cy2(boxes, query_boxes):
+#     box_device = boxes.device
+#     boxes_np = boxes.cpu().numpy().astype(np.float)
+#     query_boxes_np = query_boxes.cpu().numpy().astype(np.float)
+#     ious = bbox_overlaps_cython_v2(boxes_np, query_boxes_np)
+#     return torch.from_numpy(ious).to(box_device)
 
 def bbox_overlaps_np(boxes, query_boxes):
     """

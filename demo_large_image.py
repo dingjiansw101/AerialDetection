@@ -10,7 +10,7 @@ import DOTA_devkit.polyiou as polyiou
 import math
 import pdb
 
-def py_cpu_nms_poly_fast3_np(dets, thresh):
+def py_cpu_nms_poly_fast_np(dets, thresh):
     obbs = dets[:, 0:-1]
     x1 = np.min(obbs[:, 0::2], axis=1)
     y1 = np.min(obbs[:, 1::2], axis=1)
@@ -115,7 +115,7 @@ class DetectorModel():
                         import pdb; pdb.set_trace()
         # nms
         for i in range(len(self.classnames)):
-            keep = py_cpu_nms_poly_fast3_np(total_detections[i], 0.1)
+            keep = py_cpu_nms_poly_fast_np(total_detections[i], 0.1)
             total_detections[i] = total_detections[i][keep]
         return total_detections
     def inference_single_vis(self, srcpath, dstpath, slide_size, chip_size):
