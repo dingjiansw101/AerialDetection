@@ -46,7 +46,7 @@ def getnamelist(srcpath, dstfile):
             basename = util.mybasename(file)
             f_out.write(basename + '\n')
 
-def prepare(srcpath):
+def prepare(srcpath, dstpath):
     """
     :param srcpath: train, val, test
 
@@ -55,55 +55,50 @@ def prepare(srcpath):
           cp train1024, val1024, test1024 --> 1024split
     :return:
     """
-    if not os.path.exists(os.path.join(srcpath, 'train1024')):
-        os.mkdir(os.path.join(srcpath, 'train1024'))
-    if not os.path.exists(os.path.join(srcpath, 'val1024')):
-        os.mkdir(os.path.join(srcpath, 'val1024'))
-    if not os.path.exists(os.path.join(srcpath, 'test-dev1024')):
-        os.mkdir(os.path.join(srcpath, 'test-dev1024'))
-    if not os.path.exists(os.path.join(srcpath, 'trainval1024')):
-        os.mkdir(os.path.join(srcpath, 'trainval1024'))
-    if not os.path.exists(os.path.join(srcpath, 'images')):
-        os.mkdir(os.path.join(srcpath, 'images'))
-    if not os.path.exists(os.path.join(srcpath, 'labelTxt')):
-        os.mkdir(os.path.join(srcpath, 'labelTxt'))
+    if not os.path.exists(os.path.join(dstpath, 'train1024')):
+        os.mkdir(os.path.join(dstpath, 'train1024'))
+    if not os.path.exists(os.path.join(dstpath, 'val1024')):
+        os.mkdir(os.path.join(dstpath, 'val1024'))
+    if not os.path.exists(os.path.join(dstpath, 'test1024')):
+        os.mkdir(os.path.join(dstpath, 'test1024'))
+    if not os.path.exists(os.path.join(dstpath, 'trainval1024')):
+        os.mkdir(os.path.join(dstpath, 'trainval1024'))
+    if not os.path.exists(os.path.join(dstpath, 'images')):
+        os.mkdir(os.path.join(dstpath, 'images'))
+    if not os.path.exists(os.path.join(dstpath, 'labelTxt')):
+        os.mkdir(os.path.join(dstpath, 'labelTxt'))
 
     split_train = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'train'),
-                       os.path.join(srcpath, 'trainval1024'),
-                      gap=500,
+                       os.path.join(dstpath, 'trainval1024'),
+                      gap=200,
                       subsize=1024,
                       num_process=32
                       )
     split_train.splitdata(1)
 
     split_val = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'val'),
-                       os.path.join(srcpath, 'trainval1024'),
-                      gap=500,
+                       os.path.join(dstpath, 'trainval1024'),
+                      gap=200,
                       subsize=1024,
                       num_process=32
                       )
     split_val.splitdata(1)
 
-    split_test = SplitOnlyImage_multi_process.splitbase(os.path.join(srcpath, 'test-dev', 'images'),
-                       os.path.join(srcpath, 'test-dev1024', 'images'),
-                      gap=500,
+    split_test = SplitOnlyImage_multi_process.splitbase(os.path.join(srcpath, 'test', 'images'),
+                       os.path.join(dstpath, 'test1024', 'images'),
+                      gap=200,
                       subsize=1024,
                       num_process=32
                       )
     split_test.splitdata(1)
     # split.splitdata(0.5)
 
-    getnamelist(os.path.join(srcpath, 'trainval1024', 'images'), os.path.join(srcpath, 'train.txt'))
-    getnamelist(os.path.join(srcpath, 'test-dev1024', 'images'), os.path.join(srcpath, 'test.txt'))
+    getnamelist(os.path.join(dstpath, 'trainval1024', 'images'), os.path.join(dstpath, 'train.txt'))
+    getnamelist(os.path.join(dstpath, 'test1024', 'images'), os.path.join(dstpath, 'test.txt'))
 
-    filecopy(os.path.join(srcpath, 'trainval1024', 'images'), os.path.join(srcpath, 'images'))
-    filecopy(os.path.join(srcpath, 'trainval1024', 'labelTxt'), os.path.join(srcpath, 'labelTxt'))
+    DOTA2COCOTrain(os.path.join(dstpath, 'trainval1024'), os.path.join(dstpath, 'trainval1024', 'DOTA_trainval1024.json'), wordname_16)
+    DOTA2COCOTest(os.path.join(dstpath, 'test1024'), os.path.join(dstpath, 'test1024', 'DOTA_test1024.json'), wordname_16)
 
-    filecopy(os.path.join(srcpath, 'test-dev1024', 'images'), os.path.join(srcpath, 'images'))
-
-    DOTA2COCOTrain(r'/home/dingjian/project/dota2/trainval1024', r'/home/dingjian/project/dota2/trainval1024/DOTA_trainval1024.json', wordname_18)
-    DOTA2COCOTest(r'/home/dingjian/project/dota2/test-dev1024', r'/home/dingjian/project/dota2/test-dev1024/DOTA_test-dev1024.json', wordname_18)
 if __name__ == '__main__':
-    # filecopy(r'/data/dota2/test-dev1024/images',
-    #          r'/data/dota2/1024_split/images')
-    prepare(r'/home/dingjian/project/dota2')
+    prepare(r'/home/dingjian/project/dota',
+            r'/home/dingjian/workfs/dota1-split-1024')

@@ -46,6 +46,7 @@ d. Compile cuda extensions.
 e. Install AerialDetection (other dependencies will be installed automatically).
 
 ```shell
+pip install mmcv
 python setup.py develop
 # or "pip install -e ."
 ```
@@ -58,21 +59,32 @@ The git commit id will be written to the version number with step e, e.g. 0.6.0+
 2. Following the above instructions, AerialDetection is installed on `dev` mode, any modifications to the code will take effect without installing it again.
 
 ### Install DOTA_devkit
-
+```
+    sudo apt-get install swig
+    cd DOTA_devkit
+    swig -c++ -python polyiou.i
+    python setup.py build_ext --inplace
+```
 ### Prepare DOTA dataset.
-You need to 
-It is recommended to symlink the dataset root to `$MMDETECTION/data`.
+It is recommended to symlink the dataset root to `AerialDetection/data`.
 
+Make sure your initial data are in the following structure.
 ```
-AerialDetection
-├── mmdet
-├── tools
-├── configs
-├── data
-    ├── dota1_1024
-    ├── dota1_1024_v2
-    └── dota2_1024 
+data/dota
+├── train
+│   ├──images
+│   └── labelTxt
+├── val
+│   ├── images
+│   └── labelTxt
+└── test
+    └── images
 ```
+Split the original images and create COCO format json.
+```
+python DOTA_devkit/prepare_dota1.py --srcpath data/dota --dstpath path_to_split_1024
+```
+Then you will get data in the following structure
 ```
 dota1_1024
 ├── test1024
@@ -94,29 +106,7 @@ dota1_1024
     ├── images
     └── labelTxt
 ```
-```
-dota2_1024
-├── images
-├── labelTxt
-├── test-dev1024
-│   ├── DOTA_test-dev1024.json
-│   └── images
-├── test-dev1024_ms
-│   ├── DOTA_test-dev1024.json
-│   └── images
-├── trainval1024
-│   ├── DOTA_trainval1024.json
-│   ├── images
-│   └── labelTxt
-├── trainval1024_ms
-    ├── DOTA_trainval1024_ms.json
-    ├── images
-    └── labelTxt
 
-
-
-
-```
 
 
 

@@ -22,11 +22,10 @@ import torch
 import json
 from mmcv import Config
 import sys
-sys.path.insert(0, '../')
+# sys.path.insert(0, '../')
 # import DOTA_devkit.ResultMerge_multi_process as RM
 from DOTA_devkit.ResultMerge_multi_process import *
-from DOTA_devkit.ResultMerge_multi_process import mergebypoly_multiprocess
-import pdb; pdb.set_trace()
+# import pdb; pdb.set_trace()
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     parser.add_argument('--config', default='configs/DOTA/faster_rcnn_r101_fpn_1x_dota2_v3_RoITrans_v5.py')

@@ -54,19 +54,33 @@ configs_dota2 = {
     'retinanet_v5_obb_r101_fpn_2x_dota2_v3': 'retinanet_obb_r101_fpn_2x_dota2',
     'retinanet_v5_obb_x101_64x4d_fpn_2x_dota2_v3': 'retinanet_obb_x101_64x4d_fpn_2x_dota2'
 }
+
 def nametrans(config_path):
     dota_1_path = os.path.join(config_path, 'DOTA')
     dota1_5_path = os.path.join(config_path, 'DOTA1_5')
     dota2_path = os.path.join(config_path, 'DOTA2')
     for srcconfig in configs_dota:
-        os.system('mv {} {}'.format(os.path.join(dota_1_path, srcconfig),
-                                    os.path.join(dota_1_path, configs_dota[srcconfig])))
+        os.system('mv {} {}'.format(os.path.join(dota_1_path, srcconfig + '.py'),
+                                    os.path.join(dota_1_path, configs_dota[srcconfig] + '.py')))
 
     for srcconfig in configs_dota1_5:
-        os.system('mv {} {}'.format(os.path.join(dota1_5_path, srcconfig),
-                                    os.path.join(dota1_5_path, configs_dota1_5[srcconfig])))
+        os.system('mv {} {}'.format(os.path.join(dota1_5_path, srcconfig + '.py'),
+                                    os.path.join(dota1_5_path, configs_dota1_5[srcconfig] + '.py')))
 
     for srcconfig in configs_dota2:
-        os.system('mv {} {}'.format(os.path.join(dota2_path, srcconfig),
-                                    os.path.join(dota2_path, configs_dota2[srcconfig])))
+        os.system('mv {} {}'.format(os.path.join(dota2_path, srcconfig + '.py'),
+                                    os.path.join(dota2_path, configs_dota2[srcconfig] + '.py')))
 
+def work_dir_trans(work_dir_path):
+    configs_all = {}
+    configs_all.update(configs_dota)
+    configs_all.update(configs_dota1_5)
+    configs_all.update(configs_dota2)
+    for config in configs_all:
+
+        os.system('mv {} {}'.format(os.path.join(work_dir_path, config),
+                                    os.path.join(work_dir_path, configs_all[config])))
+
+if __name__ == '__main__':
+    nametrans(r'/home/dingjian/project/code/Aerialdetection/configs')
+    # work_dir_trans(r'/home/dingjian/project/code/Aerialdetection/work_dirs')

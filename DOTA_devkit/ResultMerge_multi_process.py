@@ -10,15 +10,11 @@ import re
 import time
 import sys
 # sys.path.insert(0,'..')
-print('fffffffffffffffffff')
+# print('fffffffffffffffffff')
 
 try:
     import dota_utils as util
 except:
-    import pdb;
-
-    pdb.set_trace()
-
     import DOTA_devkit.dota_utils as util
 import DOTA_devkit.polyiou as polyiou
 import pdb

@@ -195,7 +195,7 @@ class RoITransformer(BaseDetectorNew, RPNTestMixin):
             # import pdb
             # pdb.set_trace()
             rotated_proposal_list = self.bbox_head.refine_rbboxes(
-                roi2droi(rois, self.bbox_head.hbb_trans), roi_labels, bbox_pred, pos_is_gts, img_meta
+                roi2droi(rois), roi_labels, bbox_pred, pos_is_gts, img_meta
             )
         # import pdb
         # pdb.set_trace()
@@ -261,7 +261,7 @@ class RoITransformer(BaseDetectorNew, RPNTestMixin):
         cls_score, bbox_pred = self.bbox_head(bbox_feats)
 
         bbox_label = cls_score.argmax(dim=1)
-        rrois = self.bbox_head.regress_by_class_rbbox(roi2droi(rois, self.bbox_head.hbb_trans), bbox_label, bbox_pred,
+        rrois = self.bbox_head.regress_by_class_rbbox(roi2droi(rois), bbox_label, bbox_pred,
                                                       img_meta[0])
 
 

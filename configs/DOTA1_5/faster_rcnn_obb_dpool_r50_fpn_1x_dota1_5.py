@@ -30,7 +30,13 @@ model = dict(
         loss_bbox=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0)),
     bbox_roi_extractor=dict(
         type='SingleRoIExtractor',
-        roi_layer=dict(type='RoIAlign', out_size=7, sample_num=2),
+        roi_layer=dict(
+            type='DeformRoIPoolingPack',
+            out_size=7,
+            out_channels=256,
+            no_trans=False,
+            group_size=1,
+            trans_std=0.1),
         out_channels=256,
         featmap_strides=[4, 8, 16, 32]),
     bbox_head=dict(
@@ -97,7 +103,7 @@ test_cfg = dict(
         min_bbox_size=0),
     rcnn=dict(
         # score_thr=0.05, nms=dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img=1000)
-        score_thr = 0.05, nms = dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img = 2000)
+    score_thr = 0.05, nms = dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img = 2000)
 # soft-nms is also supported for rcnn testing
     # e.g., nms=dict(type='soft_nms', iou_thr=0.5, min_score=0.05)
 )
@@ -165,7 +171,7 @@ log_config = dict(
 total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_r50_fpn_1x_dota1_5_v2_obb_v3'
+work_dir = './work_dirs/faster_rcnn_obb_dpool_r50_fpn_1x_dota1_5'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

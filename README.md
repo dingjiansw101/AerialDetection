@@ -43,17 +43,10 @@ We provide a large set of baseline results and trained models available in the [
 
 ## Installation
 
-- install mmdetection
 
-  Please refer to [INSTALL.md](INSTALL.md) for installation of mmdetection.
+  Please refer to [INSTALL.md](INSTALL.md) for installation.
 
-- install DOTA_devkit
-```
-    sudo apt-get install swig
-    cd DOTA_devkit
-    swig -c++ -python polyiou.i
-    python setup.py build_ext --inplace
-```
+
     
 ## Get Started
 

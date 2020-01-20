@@ -39,7 +39,7 @@ model = dict(
         in_channels=256,
         fc_out_channels=1024,
         roi_feat_size=7,
-        num_classes=17,
+        num_classes=16,
         target_means=[0., 0., 0., 0., 0.],
         target_stds=[0.1, 0.1, 0.2, 0.2, 0.1],
         reg_class_agnostic=True,
@@ -58,7 +58,7 @@ model = dict(
         in_channels=256,
         fc_out_channels=1024,
         roi_feat_size=7,
-        num_classes=17,
+        num_classes=16,
         target_means=[0., 0., 0., 0., 0.],
         target_stds=[0.05, 0.05, 0.1, 0.1, 0.05],
         reg_class_agnostic=False,
@@ -135,12 +135,16 @@ test_cfg = dict(
     rcnn=dict(
         # score_thr=0.05, nms=dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img=1000)
         score_thr = 0.05, nms = dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img = 2000)
+        # score_thr = 0.001, nms = dict(type='pesudo_nms_poly', iou_thr=0.9), max_per_img = 2000)
+        # score_thr = 0.001, nms = dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img = 2000)
+
 # soft-nms is also supported for rcnn testing
     # e.g., nms=dict(type='soft_nms', iou_thr=0.5, min_score=0.05)
 )
 # dataset settings
-dataset_type = 'DOTA1_5Dataset_v2'
-data_root = 'data/dota1_1024/'
+dataset_type = 'DOTADataset'
+# data_root = 'data/dota1_1024/'
+data_root = 'data/dota1_1024_v2/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
@@ -148,19 +152,23 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'trainval1024/DOTA1_5_trainval1024.json',
-        img_prefix=data_root + 'trainval1024/images/',
+        ann_file=[data_root + 'trainval1024/DOTA_trainval1024.json',
+                  data_root + 'trainval1024_ms/DOTA_trainval1024_ms.json'],
+        img_prefix=[data_root + 'trainval1024/images/',
+                    data_root + 'trainval1024_ms/images/'],
         img_scale=(1024, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
         with_mask=True,
         with_crowd=True,
-        with_label=True),
+        with_label=True,
+        rotate_aug=dict(border_value=0, small_filter=6)
+    ),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'trainval1024/DOTA1_5_trainval1024.json',
-        img_prefix=data_root + 'trainval1024/images/',
+        ann_file=data_root + 'trainval1024_ms/DOTA_trainval1024_ms.json',
+        img_prefix=data_root + 'trainval1024_ms/images',
         img_scale=(1024, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -170,7 +178,7 @@ data = dict(
         with_label=True),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'test1024/DOTA1_5_test1024.json',
+        ann_file=data_root + 'test1024/DOTA_test1024.json',
         img_prefix=data_root + 'test1024/images',
         # ann_file=data_root + 'test1024_ms/DOTA_test1024_ms.json',
         # img_prefix=data_root + 'test1024_ms/images',
@@ -204,7 +212,7 @@ log_config = dict(
 total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_r50_fpn_1x_dota1_5_v2_RoITrans_v5'
+work_dir = './work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota__gap512_msTrainTest_rotationTrainTest'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

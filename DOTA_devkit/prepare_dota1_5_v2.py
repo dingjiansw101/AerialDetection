@@ -5,9 +5,8 @@ import SplitOnlyImage_multi_process
 import shutil
 from multiprocessing import Pool
 from DOTA2COCO2 import DOTA2COCOTest, DOTA2COCOTrain
-wordname_18 = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship', 'tennis-court',
-                'basketball-court', 'storage-tank',  'soccer-ball-field', 'roundabout', 'harbor', 'swimming-pool', 'helicopter', 'container-crane',
-                  'airport', 'helipad']
+wordname_16 = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship', 'tennis-court',
+                'basketball-court', 'storage-tank',  'soccer-ball-field', 'roundabout', 'harbor', 'swimming-pool', 'helicopter', 'container-crane']
 
 def single_copy(src_dst_tuple):
     shutil.copyfile(*src_dst_tuple)
