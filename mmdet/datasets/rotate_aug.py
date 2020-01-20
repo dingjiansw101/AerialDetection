@@ -23,9 +23,6 @@ def mask2poly_single(binary_mask):
     """
     # try:
     contours, hierarchy = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    # contour_lens = np.array(list(map(len, contours)))
-    # max_id = contour_lens.argmax()
-    # max_contour = contours[max_id]
     max_contour = max(contours, key=len)
     rect = cv2.minAreaRect(max_contour)
     poly = cv2.boxPoints(rect)
@@ -35,16 +32,11 @@ def mask2poly_single(binary_mask):
 
 def mask2poly(binary_mask_list):
     polys = map(mask2poly_single, binary_mask_list)
-    # polys = np.stack(polys
     return list(polys)
 
 def poly2mask_single(h, w, poly):
     # TODO: write test for poly2mask, using mask2poly convert mask to poly', compare poly with poly'
     # visualize the mask
-    # import pdb
-    # print('h: ', h)
-    # print('w: ', w)
-    # pdb.set_trace()
     rles = maskUtils.frPyObjects(poly, h, w)
     rle = maskUtils.merge(rles)
     mask = maskUtils.decode(rle)
@@ -56,13 +48,6 @@ def poly2mask(polys, h, w):
     masks = list(map(poly2mask_fn, polys))
     # TODO: check if len(masks) == 0
     return masks
-
-# def poly2mask(polys, h, w):
-#     rles = maskUtils.frPyObjects(polys, h, w)
-#     rle = maskUtils.merge(rles)
-#     masks = maskUtils.decode(rle)
-#
-#     return masks
 
 def rotate_poly_single(h, w, new_h, new_w, rotate_matrix_T, poly):
     poly[::2] = poly[::2] - (w - 1) * 0.5
@@ -152,15 +137,6 @@ class RotateAugmentation(object):
         # print('len rotated_masks: ', len(rotated_masks))
         # print('len labels: ', len(labels))
 
-        # import pdb
-        # pdb.set_trace()
-        # False rotated w
-        # rbbox_w = rotated_boxes[:, 2] - rotated_boxes[:, 0]
-        # rbbox_h = rotated_boxes[:, 3] - rotated_boxes[:, 1]
-        # min_w_h = np.minimum(rbbox_w, rbbox_h)
-        # keep_inds = (min_w_h * img.shape[0] / np.float32(h)) >= self.small_filter
-        # print('(min_w_h * img.shape[0] / np.float32(h)): ', (min_w_h * img.shape[0] / np.float32(h)))
-
         # True rotated h, sqrt((x1-x2)^2 + (y1-y2)^2)
         rotated_h = np.sqrt(np.power(rotated_polys_np[:, 0] - rotated_polys_np[:, 2], 2)
                             + np.power(rotated_polys_np[:, 1] - rotated_polys_np[:, 3], 2) )
@@ -199,4 +175,45 @@ class RotateAugmentation(object):
 
         return rotated_img, rotated_boxes, rotated_masks, labels
 
+class RotateTestAugmentation(object):
+    """
+    rotate image give a specific angle
+    """
+    def __init__(self,
+                 scale=1.0,
+                 border_value=0,
+                 auto_bound=True):
+        self.scale = scale
+        self.border_value = border_value
+        self.auto_bound = auto_bound
+        # self.center = center
 
+    def __call__(self, img, angle=None):
+        """
+        :param angle: the angle is in degeree
+        :return:
+        """
+        assert angle in [90, 180, 270]
+        # rotate image, copy from mmcv.imrotate
+        h, w = img.shape[:2]
+        center = ((w - 1) * 0.5, (h - 1) * 0.5)
+        # print('len boxes: ', len(boxes))
+        # print('len masks: ', len(masks))
+        # print('len labels: ', len(labels))
+        matrix = cv2.getRotationMatrix2D(center, -angle, self.scale)
+        if self.auto_bound:
+            cos = np.abs(matrix[0, 0])
+            sin = np.abs(matrix[0, 1])
+            new_w = h * sin + w * cos
+            new_h = h * cos + w * sin
+            matrix[0, 2] += (new_w - w) * 0.5
+            matrix[1, 2] += (new_h - h) * 0.5
+            w = int(np.round(new_w))
+            h = int(np.round(new_h))
+        rotated_img = cv2.warpAffine(img, matrix, (w, h), borderValue=self.border_value)
+        rotated_img_shape = rotated_img.shape
+        # rotated_img = rotated_img.transpose(2, 0, 1)
+        # print('in rotate transform, rotated img shape: ', rotated_img_shape)
+        # import pdb; pdb.set_trace()
+
+        return rotated_img, rotated_img_shape, rotated_img_shape, self.scale

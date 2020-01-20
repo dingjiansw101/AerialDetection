@@ -416,6 +416,101 @@ def dbbox_mapping_back(dbboxes, img_shape, scale_factor, flip):
     new_dbboxes[..., 3::5] = new_dbboxes[..., 3::5] / scale_factor
     return new_dbboxes
 
+def dbbox_rotate_mapping(bboxes, img_shape, angle):
+    """
+        map bboxes from the original image angle to testing angle
+        only support descrete angle currently,
+        do not consider the single class currently, do not consider batch images currently
+    :param bboxes: [n, 5 * #C] (x, y, w, h, theta) repeat #C
+    :param img_shape:
+    :param angle: angle in degeree
+    :return:
+    """
+    # print('angle: ', angle)
+    assert angle in [0, 90, 180, 270, -90, -180, -270]
+    assert len(bboxes.size()) == 2
+    num = bboxes.size(0)
+    h, w = img_shape[:2]
+    if angle in [90, 270] :
+        new_h, new_w = w, h
+    else:
+        new_h, new_w = h, w
+    center = torch.FloatTensor([(w) * 0.5, (h) * 0.5]).to(bboxes.device)
+
+    # import pdb; pdb.set_trace()
+    xys = torch.cat((bboxes[..., 0::5].view(-1, 1), bboxes[..., 1::5].view(-1, 1)), -1)
+    norm_xys = xys - center
+
+    rotate_matrix = torch.FloatTensor([[np.cos(angle/180 * np.pi), np.sin(angle/180 * np.pi)],
+                              [-np.sin(angle/180 * np.pi), np.cos(angle/180 * np.pi)]]).to(bboxes.device)
+
+    norm_rotated_xys = torch.matmul(norm_xys, rotate_matrix)
+
+    new_center = torch.FloatTensor([(new_w) * 0.5, (new_h) * 0.5]).to(bboxes.device)
+    rotated_xys = norm_rotated_xys + new_center
+
+    rotated_xys = rotated_xys.view(num, -1)
+    rotated_dbboxes = torch.zeros(bboxes.size()).to(bboxes.device)
+    rotated_dbboxes[..., 0::5] = rotated_xys[..., 0::2]
+    rotated_dbboxes[..., 1::5] = rotated_xys[..., 1::2]
+    rotated_dbboxes[..., 2::5] = bboxes[..., 2::5]
+    rotated_dbboxes[..., 3::5] = bboxes[..., 3::5]
+    rotated_dbboxes[..., 4::5] = bboxes[..., 4::5] + angle/180 * np.pi
+
+    return rotated_dbboxes
+
+
+def bbox_rotate_mapping(bboxes, img_shape, angle):
+    """TODO: test this code
+        map bboxes from the original image angle to testing angle
+        only support descrete angle currently,
+        do not consider the single class currently, do not consider batch images currently
+    :param bboxes: [n, 4 * #C] (xmin, ymin, xmax, ymax) repeat #C
+    :param img_shape:
+    :param angle: angle in degeree
+    :return:
+    """
+    assert angle in [0, 90, 180, 270, -90, -180, -270]
+    assert len(bboxes.size()) == 2
+    num = bboxes.size(0)
+    h, w = img_shape[:2]
+    if angle in [90, 270]:
+        new_h, new_w = w, h
+    else:
+        new_h, new_w = h, w
+    # TODO: check (w - 1) or (w)
+    center = torch.FloatTensor([(w) * 0.5, (h) * 0.5]).to(bboxes.device)
+
+    c_bboxes = xy2wh_c(bboxes)
+
+    if angle in [90, 270]:
+        new_box_hs, new_box_ws = c_bboxes[..., 2::4], c_bboxes[..., 3::4]
+    else:
+        new_box_hs, new_box_ws = c_bboxes[..., 3::4], c_bboxes[..., 2::4]
+
+    xys = torch.cat((c_bboxes[..., 0::4].view(-1, 1), c_bboxes[..., 1::4].view(-1, 1)), -1)
+    norm_xys = xys - center
+
+    rotate_matrix = torch.FloatTensor([[np.cos(angle / 180 * np.pi), np.sin(angle / 180 * np.pi)],
+                                       [-np.sin(angle / 180 * np.pi), np.cos(angle / 180 * np.pi)]]).to(bboxes.device)
+
+    norm_rotated_xys = torch.matmul(norm_xys, rotate_matrix)
+
+    new_center = torch.FloatTensor([(new_w) * 0.5, (new_h) * 0.5]).to(bboxes.device)
+    rotated_xys = norm_rotated_xys + new_center
+
+    rotated_xys = rotated_xys.view(num, -1)
+    rotated_cbboxes = torch.zeros(bboxes.size()).to(bboxes.device)
+    rotated_cbboxes[..., 0::4] = rotated_xys[..., 0::2]
+    rotated_cbboxes[..., 1::4] = rotated_xys[..., 1::2]
+    rotated_cbboxes[..., 2::4] = new_box_ws
+    rotated_cbboxes[..., 3::4] = new_box_hs
+
+    rotated_bboxes = wh2xy_c(rotated_cbboxes)
+
+    return rotated_bboxes
+
+
 def dbbox2delta_warp(proposals, gt, means = [0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1]):
     """
     :param proposals: (xmin, ymin, xmax, ymax)
@@ -569,6 +664,72 @@ def xy2wh(boxes):
     ex_ctr_y = boxes[..., 1] + 0.5 * (ex_heights - 1.0)
 
     return torch.cat((ex_ctr_x.unsqueeze(1), ex_ctr_y.unsqueeze(1), ex_widths.unsqueeze(1), ex_heights.unsqueeze(1)), 1)
+
+def xy2wh_c(boxes):
+    """
+
+    :param boxes: (xmin, ymin, xmax, ymax) (n, 4 * #C)
+    :return: out_boxes: (x_ctr, y_ctr, w, h) (n, 4 * #C)
+    """
+    num_boxes = boxes.size(0)
+    out_boxes = boxes.clone()
+    ex_widths = boxes[..., 2::4] - boxes[..., 0::4] + 1.0
+    ex_heights = boxes[..., 3::4] - boxes[..., 1::4] + 1.0
+    ex_ctr_x = boxes[..., 0::4] + 0.5 * (ex_widths - 1.0)
+    ex_ctr_y = boxes[..., 1::4] + 0.5 * (ex_heights - 1.0)
+    # import pdb; pdb.set_trace()
+    out_boxes[..., 2::4] = ex_widths
+    out_boxes[..., 3::4] = ex_heights
+    out_boxes[..., 0::4] = ex_ctr_x
+    out_boxes[..., 1::4] = ex_ctr_y
+
+    return out_boxes
+
+def wh2xy(bboxes):
+    """
+    :param bboxes: (x_ctr, y_ctr, w, h) (n, 4)
+    :return: out_bboxes: (xmin, ymin, xmax, ymax) (n, 4)
+    """
+    num_boxes = bboxes.size(0)
+
+    xmins = bboxes[..., 0] - (bboxes[..., 2] - 1) / 2.0
+    ymins = bboxes[..., 1] - (bboxes[..., 3] - 1) / 2.0
+    xmaxs = bboxes[..., 0] + (bboxes[..., 2] - 1) / 2.0
+    ymaxs = bboxes[..., 1] + (bboxes[..., 3] - 1) / 2.0
+
+    return torch.cat((xmins.unsqueeze(1), ymins.unsqueeze(1), xmaxs.unsqueeze(1), ymaxs.unsqueeze(1)), 1)
+
+def wh2xy_c(bboxes):
+    """
+    :param bboxes: (x_ctr, y_ctr, w, h) (n, 4 * #C)
+    :return: out_bboxes: (xmin, ymin, xmax, ymax) (n, 4)
+    """
+    num_boxes = bboxes.size(0)
+    out_bboxes = bboxes.clone()
+    xmins = bboxes[..., 0::4] - (bboxes[..., 2::4] - 1) / 2.0
+    ymins = bboxes[..., 1::4] - (bboxes[..., 3::4] - 1) / 2.0
+    xmaxs = bboxes[..., 0::4] + (bboxes[..., 2::4] - 1) / 2.0
+    ymaxs = bboxes[..., 1::4] + (bboxes[..., 3::4] - 1) / 2.0
+
+    out_bboxes[..., 0::4] = xmins
+    out_bboxes[..., 1::4] = ymins
+    out_bboxes[..., 2::4] = xmaxs
+    out_bboxes[..., 3::4] = ymaxs
+    return out_bboxes
+
+def hbb2obb(bboxes):
+    """
+
+    :param bboxes: shape (n, 4) (xmin, ymin, xmax, ymax)
+    :return: dbboxes: shape (n, 5) (x_ctr, y_ctr, w, h, angle)
+    """
+    num_boxes = bboxes.size(0)
+    c_bboxes = xy2wh(bboxes)
+    initial_angles = -c_bboxes.new_ones((num_boxes, 1)) * np.pi / 2
+    # initial_angles = -torch.ones((num_boxes, 1)) * np.pi/2
+    dbboxes = torch.cat((c_bboxes, initial_angles), 1)
+
+    return dbboxes
 
 def hbb2obb_v2(boxes):
     """

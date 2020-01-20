@@ -261,21 +261,7 @@ class AnchorHeadRbbox(nn.Module):
                 anchors = anchors[topk_inds, :]
                 bbox_pred = bbox_pred[topk_inds, :]
                 scores = scores[topk_inds, :]
-            # bboxes = delta2bbox(anchors, bbox_pred, self.target_means,
-            #                     self.target_stds, img_shape)
-            # TODO: check it
-            # import pdb
-            # print('in anchor_head rbbox')
-            # pdb.set_trace()
-            # if self.hbb_trans == 'hbb2obb':
-            #     rbbox_ex_anchors = hbb2obb(anchors)
-            # elif self.hbb_trans == 'hbbpolyobb':
-            #     rbbox_ex_anchors = hbbpolyobb(anchors)
-            # elif self.hbb_trans == 'hbb2obb_v2':
-            #     rbbox_ex_anchors = hbb2obb_v2(anchors)
-            # else:
-            #     print('no such hbb trans method')
-            #     raise NameError
+
             rbbox_ex_anchors = hbb2obb_v2(anchors)
             if self.with_module:
                 bboxes = delta2dbbox(rbbox_ex_anchors, bbox_pred, self.target_means,

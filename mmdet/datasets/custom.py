@@ -10,6 +10,7 @@ from .transforms import (ImageTransform, BboxTransform, MaskTransform,
 from .utils import to_tensor, random_scale
 from .extra_aug import ExtraAugmentation
 from .rotate_aug import RotateAugmentation
+from .rotate_aug import RotateTestAugmentation
 
 class CustomDataset(Dataset):
     """Custom dataset for detection.
@@ -53,6 +54,7 @@ class CustomDataset(Dataset):
                  seg_scale_factor=1,
                  extra_aug=None,
                  rotate_aug=None,
+                 rotate_test_aug=None,
                  resize_keep_ratio=True,
                  test_mode=False):
         # prefix of images path
@@ -129,6 +131,12 @@ class CustomDataset(Dataset):
             self.rotate_aug = RotateAugmentation(self.CLASSES, **rotate_aug)
         else:
             self.rotate_aug = None
+
+        if rotate_test_aug is not None:
+            #  dot not support argument settings currently
+            self.rotate_test_aug = RotateTestAugmentation()
+        else:
+            self.rotate_test_aug = None
 
         # image rescale if keep ratio
         self.resize_keep_ratio = resize_keep_ratio
@@ -214,11 +222,6 @@ class CustomDataset(Dataset):
         if len(gt_bboxes) == 0:
             return None
 
-        # TODO: rm the debug
-        # print('gt_bboxes shape: ', gt_bboxes)
-        # print('gt_labels shape: ', gt_labels)
-        # print('gt_masks shape: ', ann['masks'])
-        # print('gt_bboxes dtype', type(gt_bboxes))
         # extra augmentation
         if self.extra_aug is not None:
             img, gt_bboxes, gt_labels = self.extra_aug(img, gt_bboxes,
@@ -234,27 +237,6 @@ class CustomDataset(Dataset):
             # skip the image if there is no valid gt bbox
             if len(gt_bboxes) == 0:
                 return None
-            # print('gt_bboxes list type: ', gt_bboxes[0][0])
-            # # # TODO: rm if after debug
-            # # print('gt_bboxes type: ', gt_bboxes.dtype)
-            # scores = np.ones((len(gt_bboxes), 1))
-            # det_bboxes = np.concatenate((gt_bboxes, scores), 1)
-            # gt_labels = np.array(gt_labels)
-            # img_show=img.copy()
-            # # draw masks
-            # for i in range(len(gt_masks)):
-            #     color_mask = np.random.randint(0, 256, (1, 3), dtype=np.uint8)
-            #     mask = gt_masks[i].astype(np.bool)
-            #     print('sum mask bool: ', sum(sum(mask)))
-            #     mask_uint8 = mask.astype(np.uint8)
-            #     print('sum mask uint8: ', np.sum(mask_uint8))
-            #     mask_float = mask.astype(np.float32)
-            #     print('sum mask float32: ', sum(sum(mask_float)))
-            #     img_show[mask] = img_show[mask] * 0.5 + color_mask * 0.5
-            # import random
-            # mmcv.imshow_det_bboxes(img_show, det_bboxes, gt_labels, show=False, out_file=osp.join(r'/home/dj/debug_imgs',
-            #                                                                                       '{}'.format(format(str(random.randint(1, 1000)))) + img_info['filename']))
-
         # apply transforms
         flip = True if np.random.rand() < self.flip_ratio else False
         # randomly sample a scale
@@ -323,7 +305,8 @@ class CustomDataset(Dataset):
                     'but found {}'.format(proposal.shape))
         else:
             proposal = None
-
+        # TODO: make the flip and rotate at the same time
+        # TODO: when implement the img rotation, we do not consider the proposals, add it in future
         def prepare_single(img, scale, flip, proposal=None):
             _img, img_shape, pad_shape, scale_factor = self.img_transform(
                 img, scale, flip, keep_ratio=self.resize_keep_ratio)
@@ -333,7 +316,8 @@ class CustomDataset(Dataset):
                 img_shape=img_shape,
                 pad_shape=pad_shape,
                 scale_factor=scale_factor,
-                flip=flip)
+                flip=flip,
+                angle=0)
             if proposal is not None:
                 if proposal.shape[1] == 5:
                     score = proposal[:, 4, None]
@@ -348,6 +332,23 @@ class CustomDataset(Dataset):
             else:
                 _proposal = None
             return _img, _img_meta, _proposal
+
+        def prepare_rotation_single(img, scale, flip, angle):
+            _img, img_shape, pad_shape, scale_factor = self.rotate_test_aug(
+                img, angle=angle)
+            _img, img_shape, pad_shape, scale_factor = self.img_transform(
+                _img, scale, flip, keep_ratio=self.resize_keep_ratio)
+            _img = to_tensor(_img)
+            # if self.rotate_test_aug is not None:
+            _img_meta = dict(
+                ori_shape=(img_info['height'], img_info['width'], 3),
+                img_shape=img_shape,
+                pad_shape=pad_shape,
+                scale_factor=scale_factor,
+                flip=flip,
+                angle=angle
+            )
+            return _img, _img_meta
 
         imgs = []
         img_metas = []
@@ -364,6 +365,30 @@ class CustomDataset(Dataset):
                 imgs.append(_img)
                 img_metas.append(DC(_img_meta, cpu_only=True))
                 proposals.append(_proposal)
+        if self.rotate_test_aug is not None :
+            # rotation augmentation
+            # do not support proposals currently
+            # img_show = img.copy()
+            # mmcv.imshow(img_show, win_name='original')
+            for angle in [90, 180, 270]:
+
+                for scale in self.img_scales:
+                    _img, _img_meta,  = prepare_rotation_single(
+                        img, scale, False, angle)
+                    imgs.append(_img)
+                    img_metas.append(DC(_img_meta, cpu_only=True))
+                    # proposals.append(_proposal)
+                    if self.flip_ratio > 0:
+                        _img, _img_meta = prepare_rotation_single(
+                            img, scale, True, proposal, angle)
+                        imgs.append(_img)
+                        img_metas.append(DC(_img_meta, cpu_only=True))
+                    # # # # TODO: rm if after debug
+                    # if angle == 180:
+                    #     img_show = _img.cpu().numpy().copy()
+                    #     mmcv.imshow(img_show, win_name=str(angle))
+                    # import pdb;pdb.set_trace()
+
         data = dict(img=imgs, img_meta=img_metas)
         if self.proposals is not None:
             data['proposals'] = proposals

@@ -11,9 +11,12 @@ from mmdet.core import (build_assigner, bbox2roi, dbbox2roi, bbox2result, build_
                         dbbox2result, merge_aug_masks, roi2droi, mask2poly,
                         get_best_begin_point, polygonToRotRectangle_batch,
                         gt_mask_bp_obbs_list, choose_best_match_batch,
-                        choose_best_Rroi_batch)
+                        choose_best_Rroi_batch, dbbox_rotate_mapping, bbox_rotate_mapping)
+from mmdet.core import (bbox_mapping, merge_aug_proposals, merge_aug_bboxes,
+                        merge_aug_masks, multiclass_nms, merge_rotate_aug_proposals,
+                        merge_rotate_aug_bboxes, multiclass_nms_rbbox)
 import copy
-
+from mmdet.core import RotBox2Polys, polygonToRotRectangle_batch
 @DETECTORS.register_module
 class RoITransformer(BaseDetectorNew, RPNTestMixin):
 
@@ -264,11 +267,7 @@ class RoITransformer(BaseDetectorNew, RPNTestMixin):
         rrois = self.bbox_head.regress_by_class_rbbox(roi2droi(rois), bbox_label, bbox_pred,
                                                       img_meta[0])
 
-
         rrois_enlarge = copy.deepcopy(rrois)
-        # TODO: check the code
-        # rrois_enlarge[:, 3] = rrois_enlarge[:, 3] * 1.2 # w, long side
-        # rrois_enlarge[:, 4] = rrois_enlarge[:, 4] * 1.4 # h, short side
         rrois_enlarge[:, 3] = rrois_enlarge[:, 3] * self.rbbox_roi_extractor.w_enlarge
         rrois_enlarge[:, 4] = rrois_enlarge[:, 4] * self.rbbox_roi_extractor.h_enlarge
         rbbox_feats = self.rbbox_roi_extractor(
@@ -290,13 +289,84 @@ class RoITransformer(BaseDetectorNew, RPNTestMixin):
 
         return rbbox_results
 
-    def aug_test(self, img, img_meta, proposals=None, rescale=None):
-        raise NotImplementedError
-        # proposal_list = set.aug_test_rpn(
-        #     sel
-        # )
+    def aug_test(self, imgs, img_metas, proposals=None, rescale=None):
+        # raise NotImplementedError
+        # import pdb; pdb.set_trace()
+        proposal_list = self.aug_test_rpn_rotate(
+            self.extract_feats(imgs), img_metas, self.test_cfg.rpn)
+
+        rcnn_test_cfg = self.test_cfg.rcnn
+
+        aug_rbboxes = []
+        aug_rscores = []
+        for x, img_meta in zip(self.extract_feats(imgs), img_metas):
+            # only one image in the batch
+            img_shape = img_meta[0]['img_shape']
+            scale_factor = img_meta[0]['scale_factor']
+            flip = img_meta[0]['flip']
+
+            proposals = bbox_mapping(proposal_list[0][:, :4], img_shape,
+                                     scale_factor, flip)
+
+            angle = img_meta[0]['angle']
+            # print('img shape: ', img_shape)
+            if angle != 0:
+                try:
+
+                    proposals = bbox_rotate_mapping(proposal_list[0][:, :4], img_shape,
+                                                angle)
+                except:
+                    import pdb; pdb.set_trace()
+            rois = bbox2roi([proposals])
+            # recompute feature maps to save GPU memory
+            roi_feats = self.bbox_roi_extractor(
+                x[:len(self.bbox_roi_extractor.featmap_strides)], rois)
+            if self.with_shared_head:
+                roi_feats = self.shared_head(roi_feats)
+            cls_score, bbox_pred = self.bbox_head(roi_feats)
 
 
+            bbox_label = cls_score.argmax(dim=1)
+            rrois = self.bbox_head.regress_by_class_rbbox(roi2droi(rois, self.bbox_head.hbb_trans), bbox_label,
+                                                          bbox_pred,
+                                                          img_meta[0])
+
+            rrois_enlarge = copy.deepcopy(rrois)
+            rrois_enlarge[:, 3] = rrois_enlarge[:, 3] * self.rbbox_roi_extractor.w_enlarge
+            rrois_enlarge[:, 4] = rrois_enlarge[:, 4] * self.rbbox_roi_extractor.h_enlarge
+            rbbox_feats = self.rbbox_roi_extractor(
+                x[:len(self.rbbox_roi_extractor.featmap_strides)], rrois_enlarge)
+            if self.with_shared_head_rbbox:
+                rbbox_feats = self.shared_head_rbbox(rbbox_feats)
+
+            rcls_score, rbbox_pred = self.rbbox_head(rbbox_feats)
+            rbboxes, rscores = self.rbbox_head.get_det_rbboxes(
+                rrois,
+                rcls_score,
+                rbbox_pred,
+                img_shape,
+                scale_factor,
+                rescale=rescale,
+                cfg=None)
+            aug_rbboxes.append(rbboxes)
+            aug_rscores.append(rscores)
+
+        merged_rbboxes, merged_rscores = merge_rotate_aug_bboxes(
+            aug_rbboxes, aug_rscores, img_metas, rcnn_test_cfg
+        )
+        det_rbboxes, det_rlabels = multiclass_nms_rbbox(
+                                merged_rbboxes, merged_rscores, rcnn_test_cfg.score_thr,
+                                rcnn_test_cfg.nms, rcnn_test_cfg.max_per_img)
+
+        if rescale:
+            _det_rbboxes = det_rbboxes
+        else:
+            _det_rbboxes = det_rbboxes.clone()
+            _det_rbboxes[:, :4] *= img_metas[0][0]['scale_factor']
+
+        rbbox_results = dbbox2result(_det_rbboxes, det_rlabels,
+                                     self.rbbox_head.num_classes)
+        return rbbox_results
 
 
 

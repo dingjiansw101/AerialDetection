@@ -1,7 +1,9 @@
 import torch
 from mmdet.core import (bbox2roi, bbox_mapping, merge_aug_proposals,
-                        merge_aug_bboxes, merge_aug_masks, multiclass_nms)
-
+                        merge_aug_bboxes, merge_aug_masks, multiclass_nms,
+                        choose_best_Rroi_batch)
+from mmdet.core import hbb2obb
+from mmdet.core import merge_rotate_aug_bboxes, merge_rotate_aug_proposals
 
 class RPNTestMixin(object):
 
@@ -24,6 +26,21 @@ class RPNTestMixin(object):
             for proposals, img_meta in zip(aug_proposals, img_metas)
         ]
         return merged_proposals
+
+    def aug_test_rpn_rotate(self, feats, img_metas, rpn_test_cfg):
+        imgs_per_gpu = len(img_metas[0])
+        aug_proposals = [[] for _ in range(imgs_per_gpu)]
+        for x, img_meta in zip(feats, img_metas):
+            proposal_list = self.simple_test_rpn(x, img_meta, rpn_test_cfg)
+            for i, proposals in enumerate(proposal_list):
+                aug_proposals[i].append(proposals)
+        # after merging, proposals will be rescaled to the original image size
+        merged_proposals = [
+            merge_rotate_aug_proposals(proposals, img_meta, rpn_test_cfg)
+            for proposals, img_meta in zip(aug_proposals, img_metas)
+        ]
+        return merged_proposals
+
 
 
 class BBoxTestMixin(object):
