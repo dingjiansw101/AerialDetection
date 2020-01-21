@@ -8,7 +8,7 @@ import tempfile
 import mmcv
 from mmdet.apis import init_dist
 from mmdet.core import results2json, coco_eval, \
-    HBBSeg2Comp4, OBBDet2Comp4, POLYDetComp4, \
+    HBBSeg2Comp4, OBBDet2Comp4, OBBDetComp4, \
     HBBOBB2Comp4, HBBDet2Comp4
 
 import argparse
@@ -64,7 +64,7 @@ def parse_results(config_file, resultfile, dstpath, type):
     outputs = mmcv.load(resultfile)
     if type == 'POLY':
         #  dota1 has tested
-        obb_results_dict = POLYDetComp4(dataset, outputs)
+        obb_results_dict = OBBDetComp4(dataset, outputs)
         current_thresh = 0.1
     elif type == 'HBB':
         # dota1 has tested

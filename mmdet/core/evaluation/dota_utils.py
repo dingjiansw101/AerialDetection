@@ -176,7 +176,7 @@ def OBBDet2Comp4(dataset, results):
                 results_dict[cls_name].append(outline)
     return results_dict
 
-def POLYDetComp4(dataset, results):
+def OBBDetComp4(dataset, results):
     results_dict = {}
     for idx in range(len(dataset)):
         filename = dataset.img_infos[idx]['filename']

@@ -5,80 +5,68 @@ For installation instructions, please see [INSTALL.md](INSTALL.md).
 
 ## Inference with pretrained models
 
-We provide testing scripts to evaluate a whole dataset (COCO, PASCAL VOC, etc.),
-and also some high-level apis for easier integration to other projects.
 
 ### Test a dataset
 
 - [x] single GPU testing
 - [x] multiple GPU testing
-- [x] visualize detection results
 
 You can use the following commands to test a dataset.
 
 ```shell
 # single-gpu testing
-python tools/test.py ${CONFIG_FILE} ${CHECKPOINT_FILE} [--out ${RESULT_FILE}] [--eval ${EVAL_METRICS}] [--show]
+python tools/test.py ${CONFIG_FILE} ${CHECKPOINT_FILE} [--out ${RESULT_FILE}]
 
 # multi-gpu testing
-./tools/dist_test.sh ${CONFIG_FILE} ${CHECKPOINT_FILE} ${GPU_NUM} [--out ${RESULT_FILE}] [--eval ${EVAL_METRICS}]
+./tools/dist_test.sh ${CONFIG_FILE} ${CHECKPOINT_FILE} ${GPU_NUM} [--out ${RESULT_FILE}]
 ```
 
 Optional arguments:
 - `RESULT_FILE`: Filename of the output results in pickle format. If not specified, the results will not be saved to a file.
-- `EVAL_METRICS`: Items to be evaluated on the results. Allowed values are: `proposal_fast`, `proposal`, `bbox`, `segm`, `keypoints`.
-- `--show`: If specified, detection results will be ploted on the images and shown in a new window. Only applicable for single GPU testing.
 
 Examples:
 
-Assume that you have already downloaded the checkpoints to `checkpoints/`.
+Assume that you have already downloaded the checkpoints to `work_dirs/`.
 
-1. Test Faster R-CNN and show the results.
-
-```shell
-python tools/test.py configs/faster_rcnn_r50_fpn_1x.py \
-    checkpoints/faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth \
-    --show
-```
-
-2. Test Mask R-CNN and evaluate the bbox and mask AP.
+1. Test Faster R-CNN.
 
 ```shell
-python tools/test.py configs/mask_rcnn_r50_fpn_1x.py \
-    checkpoints/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth \
-    --out results.pkl --eval bbox segm
+python tools/test.py configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py \
+    work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota/epoch_12.pth \ 
+    --out work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota/results.pkl
 ```
 
-3. Test Mask R-CNN with 8 GPUs, and evaluate the bbox and mask AP.
+2. Test Mask R-CNN with 4 GPUs.
 
 ```shell
-./tools/dist_test.sh configs/mask_rcnn_r50_fpn_1x.py \
-    checkpoints/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth \
-    8 --out results.pkl --eval bbox segm
+./tools/dist_test.sh configs/DOTA/mask_rcnn_r50_fpn_1x_dota.py \
+    work_dirs/mask_rcnn_r50_fpn_1x_dota/epoch_12.pth \
+    4 --out work_dirs/mask_rcnn_r50_fpn_1x_dota/results.pkl 
 ```
 
-### High-level APIs for testing images.
+3. Parse the results.pkl to the format needed for [DOTA evaluation](http://117.78.28.204:8001/)
 
-Here is an example of building the model and test given images.
+For methods with only OBB Head, set the type OBB.
+```
+python tools/parse_results.py --config configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py --type OBB
+```
+For methods with both OBB and HBB Head, set the type HBBOBB.
+```
+python tools/parse_results.py --config configs/DOTA/faster_rcnn_h-obb_r50_fpn_1x_dota.py --type OBB
+```
+For methods with HBB and Mask Head, set the type Mask
+```
+python tools/parse_results.py --config configs/DOTA/mask_rcnn_r50_fpn_1x_dota.py --type Mask
+```
+For methods with only HBB Head, se the type HBB
+```
+python tools/parse_results.py --config configs/DOTA/faster_rcnn_r50_fpn_1x_dota.py --type HBB
+```
+### Demo of inference in a large size image.
+
 
 ```python
-from mmdet.apis import init_detector, inference_detector, show_result
-
-config_file = 'configs/faster_rcnn_r50_fpn_1x.py'
-checkpoint_file = 'checkpoints/faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth'
-
-# build the model from a config file and a checkpoint file
-model = init_detector(config_file, checkpoint_file, device='cuda:0'))
-
-# test a single image and show the results
-img = 'test.jpg'  # or img = mmcv.imread(img), which will only load it once
-result = inference_detector(model, img)
-show_result(img, result, model.CLASSES)
-
-# test a list of images and write the results to image files
-imgs = ['test1.jpg', 'test2.jpg']
-for i, result in enumerate(inference_detector(model, imgs):
-    show_result(imgs[i], result, model.CLASSES, out_file='result_{}.jpg'.format(i))
+python demo_large_image.py
 ```
 
 

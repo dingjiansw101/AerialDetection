@@ -68,7 +68,9 @@ The git commit id will be written to the version number with step e, e.g. 0.6.0+
 ### Prepare DOTA dataset.
 It is recommended to symlink the dataset root to `AerialDetection/data`.
 
-Make sure your initial data are in the following structure.
+Here, we give an example for single scale data preparation of DOTA-v1.0.
+
+First, make sure your initial data are in the following structure.
 ```
 data/dota
 ├── train
@@ -80,7 +82,7 @@ data/dota
 └── test
     └── images
 ```
-Split the original images and create COCO format json.
+Split the original images and create COCO format json. 
 ```
 python DOTA_devkit/prepare_dota1.py --srcpath data/dota --dstpath path_to_split_1024
 ```
@@ -88,23 +90,11 @@ Then you will get data in the following structure
 ```
 dota1_1024
 ├── test1024
-│   ├── DOTA1_5_test1024.json
 │   ├── DOTA_test1024.json
 │   └── images
-├── test1024_ms
-│   ├── DOTA1_5_test1024_ms.json
-│   ├── DOTA_test1024_ms.json
-│   └── images
-├── trainval1024
-│   ├── DOTA1_5_trainval1024.json
-│   ├── DOTA_trainval1024.json
-│   ├── images
-│   └── labelTxt
-└── trainval1024_ms
-    ├── DOTA1_5_trainval1024_ms.json
-    ├── DOTA_trainval1024_ms.json
-    ├── images
-    └── labelTxt
+└── trainval1024
+     ├── DOTA_trainval1024.json
+     └── images
 ```
 
 

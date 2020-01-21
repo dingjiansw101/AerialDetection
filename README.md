@@ -8,7 +8,7 @@ The master branch works with **PyTorch 1.1** or higher. If you would like to use
 please checkout to the [pytorch-0.4.1](https://github.com/open-mmlab/mmdetection/tree/pytorch-0.4.1) branch.
 
 ![detected_results](results.jpg)
-### Main Features
+### New Features
 To adapt to object detection in aerial images, this repo has several unique and new features compared to the original [mmdetection](https://github.com/open-mmlab/mmdetection)
 - **Support Oriented Object Detection**
     
@@ -40,6 +40,7 @@ This project is released under the [Apache 2.0 license](LICENSE).
 ## Benchmark and model zoo
 
 We provide a large set of baseline results and trained models available in the [Model zoo](MODEL_ZOO.md).
+You can find the detailed configs in configs/DOTA.
 
 ## Installation
 

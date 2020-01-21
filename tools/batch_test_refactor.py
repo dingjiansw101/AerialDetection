@@ -13,7 +13,7 @@ def batch_test(confg_set):
             dataset = 'DOTA1_5'
         else:
             raise Exception
-        time.sleep(60)
+        # time.sleep(60)
         # select epoch
         if '1x' in config:
             epoch = '12'
@@ -282,4 +282,19 @@ if __name__ == '__main__':
     ]
 
     # batch_test(dota2_speed_accuracy_all)
-    batch_test(configs_dota + configs_dota1_5 + configs_dota2)
+    configs_dota_sub = [
+        'retinanet_r50_fpn_2x_dota',
+        'retinanet_obb_r50_fpn_2x_dota',
+        'mask_rcnn_r50_fpn_1x_dota',
+        'faster_rcnn_obb_r50_fpn_1x_dota',
+        'faster_rcnn_h-obb_r50_fpn_1x_dota',
+        'faster_rcnn_RoITrans_r50_fpn_1x_dota'
+    ]
+
+    configs_dota1_5_sub = [
+        'faster_rcnn_RoITrans_r50_fpn_1x_dota1_5_gap512_msTrainTest_rotationTrainTest',
+        'mask_rcnn_r50_fpn_1x_dota1_5',
+        'faster_rcnn_obb_r50_fpn_1x_dota1_5',
+        'faster_rcnn_RoITrans_r50_fpn_1x_dota1_5',
+    ]
+    batch_test(configs_dota_sub + configs_dota1_5_sub)

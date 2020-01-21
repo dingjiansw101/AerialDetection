@@ -1,8 +1,7 @@
 import torch
-# from DOTA_devkit.ResultMerge_multi_process import py_cpu_nms_poly_fast
 from mmdet.ops.nms.rnms_wrapper import py_cpu_nms_poly_fast
 from mmdet.ops.nms import rnms_wrapper
-# from mmdet.ops.poly_nms import poly_nms_wrapper
+from mmdet.ops.poly_nms import poly_nms_wrapper
 from mmdet.core import RotBox2Polys, RotBox2Polys_torch
 import time
 # TODO: refator the code
