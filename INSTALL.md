@@ -65,41 +65,6 @@ The git commit id will be written to the version number with step e, e.g. 0.6.0+
     swig -c++ -python polyiou.i
     python setup.py build_ext --inplace
 ```
-### Prepare DOTA dataset.
-It is recommended to symlink the dataset root to `AerialDetection/data`.
-
-Here, we give an example for single scale data preparation of DOTA-v1.0.
-
-First, make sure your initial data are in the following structure.
-```
-data/dota
-├── train
-│   ├──images
-│   └── labelTxt
-├── val
-│   ├── images
-│   └── labelTxt
-└── test
-    └── images
-```
-Split the original images and create COCO format json. 
-```
-python DOTA_devkit/prepare_dota1.py --srcpath data/dota --dstpath path_to_split_1024
-```
-Then you will get data in the following structure
-```
-dota1_1024
-├── test1024
-│   ├── DOTA_test1024.json
-│   └── images
-└── trainval1024
-     ├── DOTA_trainval1024.json
-     └── images
-```
-
-
-
-
 ### Notice
 You can run `python(3) setup.py develop` or `pip install -e .` to install AerialDetection if you want to make modifications to it frequently.
 
