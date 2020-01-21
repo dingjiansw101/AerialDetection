@@ -1,6 +1,4 @@
 # model settings
-# compared to v1, set the with_module = False
-# compared to v2, change the hbb2obb function
 model = dict(
     type='FasterRCNNOBB',
     pretrained='open-mmlab://resnext101_64x4d',

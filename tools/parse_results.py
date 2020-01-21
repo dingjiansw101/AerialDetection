@@ -62,7 +62,7 @@ def parse_results(config_file, resultfile, dstpath, type):
     data_test = cfg.data['test']
     dataset = get_dataset(data_test)
     outputs = mmcv.load(resultfile)
-    if type == 'POLY':
+    if type == 'OBB':
         #  dota1 has tested
         obb_results_dict = OBBDetComp4(dataset, outputs)
         current_thresh = 0.1

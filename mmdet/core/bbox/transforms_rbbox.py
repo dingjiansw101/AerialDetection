@@ -749,23 +749,6 @@ def hbb2obb_v2(boxes):
 
     return dbboxes
 
-# def roi2droi(rois, hbb_trans='hbb2obb'):
-#     """
-#     :param rois: Tensor: shape (n, 5), [batch_ind, x1, y1, x2, y2]
-#     :return: drois: Tensor: shape (n, 6), [batch_ind, x, y, w, h, theta]
-#     """
-#     hbbs = rois[:, 1:]
-#     if hbb_trans == 'hbb2obb':
-#         obbs = hbb2obb(hbbs)
-#     elif hbb_trans == 'hbbpolyobb':
-#         obbs = hbbpolyobb(hbbs)
-#     elif hbb_trans == 'hbb2obb_v2':
-#         obbs = hbb2obb_v2(hbbs)q
-#     else:
-#         print('not such hbbtrans method')
-#         raise Exception
-#     return torch.cat((rois[:, 0].unsqueeze(1), obbs), 1)
-
 def roi2droi(rois):
     """
     :param rois: Tensor: shape (n, 5), [batch_ind, x1, y1, x2, y2]

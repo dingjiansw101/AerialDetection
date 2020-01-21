@@ -1,6 +1,4 @@
 # model settings
-# compare to v1, set the with module to False
-# compare to v3, change the hbb trans function
 model = dict(
     type='RetinaNetRbbox',
     pretrained='open-mmlab://resnext101_64x4d',

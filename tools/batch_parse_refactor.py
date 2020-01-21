@@ -17,9 +17,9 @@ def batch_parse(config_list):
             if ('hbb' in config):
                 type = 'HBBOBB'
             else:
-                type = 'POLY'
+                type = 'OBB'
         elif ('RoITrans' in config):
-            type = 'POLY'
+            type = 'OBB'
         elif ('mask' in config) or ('htc' in config):
             type = 'Mask'
         else:

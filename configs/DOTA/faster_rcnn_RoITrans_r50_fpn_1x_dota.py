@@ -1,6 +1,4 @@
 # model settings
-# compared to v2, set the with_module = False
-# compared to v3, change the hbb_trans method
 model = dict(
     type='RoITransformer',
     pretrained='modelzoo://resnet50',

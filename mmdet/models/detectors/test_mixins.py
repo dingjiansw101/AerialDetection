@@ -2,7 +2,6 @@ import torch
 from mmdet.core import (bbox2roi, bbox_mapping, merge_aug_proposals,
                         merge_aug_bboxes, merge_aug_masks, multiclass_nms,
                         choose_best_Rroi_batch)
-from mmdet.core import hbb2obb
 from mmdet.core import merge_rotate_aug_bboxes, merge_rotate_aug_proposals
 
 class RPNTestMixin(object):
@@ -206,10 +205,6 @@ class RBBoxTestMixin(object):
         ori_shape = img_meta[0]['ori_shape']
         scale_factor = img_meta[0]['scale_factor']
         if det_bboxes.shape[0] == 0:
-            # import pdb
-            # print('sorry, not handle it currently')
-            # pdb.set_trace()
-            # rbbox_results = [[] for _ in range(self.rbbox_head.num_classes - 1)]
             det_rbboxes = det_bboxes.new_zeros((0, 6))
             det_labels = det_bboxes.new_zeros((0, ), dtype=torch.long)
         else:

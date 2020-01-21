@@ -18,7 +18,8 @@ from .transforms_rbbox import (dbbox2delta, delta2dbbox, mask2poly,
                                choose_best_match_batch,
                                choose_best_Rroi_batch, delta2dbbox_v2,
                                delta2dbbox_v3, dbbox2delta_v3, hbb2obb_v2, RotBox2Polys, RotBox2Polys_torch,
-                               poly2bbox)
+                               poly2bbox, dbbox_rotate_mapping, bbox_rotate_mapping,
+                               bbox_rotate_mapping, dbbox_mapping_back)
 from .bbox_target_rbbox import bbox_target_rbbox, rbbox_target_rbbox
 
 __all__ = [
@@ -35,5 +36,6 @@ __all__ = [
     'rbbox_random_sampler', 'gt_mask_bp_obbs', 'gt_mask_bp_obbs_list',
     'rbbox_target_rbbox', 'choose_best_match_batch', 'choose_best_Rroi_batch',
     'delta2dbbox_v2', 'delta2dbbox_v3', 'dbbox2delta_v3',
-    'hbb2obb_v2', 'RotBox2Polys', 'RotBox2Polys_torch', 'poly2bbox'
+    'hbb2obb_v2', 'RotBox2Polys', 'RotBox2Polys_torch', 'poly2bbox', 'dbbox_rotate_mapping',
+    'bbox_rotate_mapping', 'bbox_rotate_mapping', 'dbbox_mapping_back'
 ]
