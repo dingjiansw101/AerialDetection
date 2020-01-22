@@ -189,7 +189,7 @@ if __name__ == '__main__':
     # batch_parse(configs_augmentation_ablation)
     configs_dota_sub = [
         'retinanet_r50_fpn_2x_dota',
-        'retinanet_obb_r50_fpn_2x_dota',
+        # 'retinanet_obb_r50_fpn_2x_dota',
         'mask_rcnn_r50_fpn_1x_dota',
         'faster_rcnn_obb_r50_fpn_1x_dota',
         'faster_rcnn_h-obb_r50_fpn_1x_dota',
@@ -197,7 +197,7 @@ if __name__ == '__main__':
     ]
 
     configs_dota1_5_sub = [
-        'faster_rcnn_RoITrans_r50_fpn_1x_dota1_5_gap512_msTrainTest_rotationTrainTest',
+        # 'faster_rcnn_RoITrans_r50_fpn_1x_dota1_5_gap512_msTrainTest_rotationTrainTest',
         'mask_rcnn_r50_fpn_1x_dota1_5',
         'faster_rcnn_obb_r50_fpn_1x_dota1_5',
         'faster_rcnn_RoITrans_r50_fpn_1x_dota1_5',
