@@ -327,7 +327,7 @@ class RoITransformer(BaseDetectorNew, RPNTestMixin):
 
 
             bbox_label = cls_score.argmax(dim=1)
-            rrois = self.bbox_head.regress_by_class_rbbox(roi2droi(rois, self.bbox_head.hbb_trans), bbox_label,
+            rrois = self.bbox_head.regress_by_class_rbbox(roi2droi(rois), bbox_label,
                                                           bbox_pred,
                                                           img_meta[0])
 

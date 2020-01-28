@@ -8,7 +8,7 @@ The master branch works with **PyTorch 1.1** or higher. If you would like to use
 please checkout to the [pytorch-0.4.1](https://github.com/open-mmlab/mmdetection/tree/pytorch-0.4.1) branch.
 
 ![detected_results](results.jpg)
-### New Features
+### Main Features
 To adapt to object detection in aerial images, this repo has several unique and new features compared to the original [mmdetection](https://github.com/open-mmlab/mmdetection)
 - **Support Oriented Object Detection**
     
@@ -31,7 +31,6 @@ To adapt to object detection in aerial images, this repo has several unique and 
 
     Currently, we implement two types of rotated RoI Warping (Rotated RoI Align and Rotated Position Sensitive RoI Align).
 
-- **Large Size Image Inference Demo**
    
 ## License
 
@@ -60,7 +59,7 @@ We appreciate all contributions to improve benchmarks for object detection in ae
 
 ## Citing
 
-If you use our [DOTA](https://captain-whu.github.io/DOTA/) dataset, codebase or models in your research, please cite .
+If you use [DOTA](https://captain-whu.github.io/DOTA/) dataset, codebase or models in your research, please consider cite .
 
 ```
 @inproceedings{xia2018dota,
@@ -70,7 +69,23 @@ If you use our [DOTA](https://captain-whu.github.io/DOTA/) dataset, codebase or 
   pages={3974--3983},
   year={2018}
 }
+
+@article{chen2019mmdetection,
+  title={MMDetection: Open mmlab detection toolbox and benchmark},
+  author={Chen, Kai and Wang, Jiaqi and Pang, Jiangmiao and Cao, Yuhang and Xiong, Yu and Li, Xiaoxiao and Sun, Shuyang and Feng, Wansen and Liu, Ziwei and Xu, Jiarui and others},
+  journal={arXiv preprint arXiv:1906.07155},
+  year={2019}
+}
+
+@InProceedings{Ding_2019_CVPR,
+author = {Ding, Jian and Xue, Nan and Long, Yang and Xia, Gui-Song and Lu, Qikai},
+title = {Learning RoI Transformer for Oriented Object Detection in Aerial Images},
+booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+month = {June},
+year = {2019}
+}
 ```
+
 ## Thanks to the Third Party Libs
 
 [Pytorch](https://pytorch.org/)

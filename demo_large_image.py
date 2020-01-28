@@ -33,44 +33,27 @@ def py_cpu_nms_poly_fast_np(dets, thresh):
         ovr = []
         i = order[0]
         keep.append(i)
-        # if order.size == 0:
-        #     break
         xx1 = np.maximum(x1[i], x1[order[1:]])
         yy1 = np.maximum(y1[i], y1[order[1:]])
         xx2 = np.minimum(x2[i], x2[order[1:]])
         yy2 = np.minimum(y2[i], y2[order[1:]])
-        # w = np.maximum(0.0, xx2 - xx1 + 1)
-        # h = np.maximum(0.0, yy2 - yy1 + 1)
         w = np.maximum(0.0, xx2 - xx1)
         h = np.maximum(0.0, yy2 - yy1)
         hbb_inter = w * h
         hbb_ovr = hbb_inter / (areas[i] + areas[order[1:]] - hbb_inter)
-        # h_keep_inds = np.where(hbb_ovr == 0)[0]
         h_inds = np.where(hbb_ovr > 0)[0]
         tmp_order = order[h_inds + 1]
         for j in range(tmp_order.size):
             iou = polyiou.iou_poly(polys[i], polys[tmp_order[j]])
             hbb_ovr[h_inds[j]] = iou
-            # ovr.append(iou)
-            # ovr_index.append(tmp_order[j])
 
-        # ovr = np.array(ovr)
-        # ovr_index = np.array(ovr_index)
-        # print('ovr: ', ovr)
-        # print('thresh: ', thresh)
         try:
             if math.isnan(ovr[0]):
                 pdb.set_trace()
         except:
             pass
         inds = np.where(hbb_ovr <= thresh)[0]
-
-        # order_obb = ovr_index[inds]
-        # print('inds: ', inds)
-        # order_hbb = order[h_keep_inds + 1]
         order = order[inds + 1]
-        # pdb.set_trace()
-        # order = np.concatenate((order_obb, order_hbb), axis=0).astype(np.int)
     return keep
 
 class DetectorModel():

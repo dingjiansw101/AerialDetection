@@ -24,7 +24,5 @@
 
 More benchmark results based on the code are on the way.
 - Baseline results on DOTA
-![benchmarks](benchmarks.png)
+![benchmarks](benchmarks-dota.png)
 
-- Results with different backbones at DOTA-v2.0
-![speed_accuracy](speed_accuracy.svg)

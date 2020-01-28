@@ -109,3 +109,5 @@ mmdet/version.py
 data
 .vscode
 .idea
+
+trash/

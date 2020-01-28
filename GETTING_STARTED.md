@@ -24,7 +24,7 @@ data/dota
 ```
 Split the original images and create COCO format json. 
 ```
-python DOTA_devkit/prepare_dota1.py --srcpath data/dota --dstpath path_to_split_1024
+python DOTA_devkit/prepare_dota1.py --srcpath path_to_dota --dstpath path_to_split_1024
 ```
 Then you will get data in the following structure
 ```
@@ -36,6 +36,8 @@ dota1_1024
      ├── DOTA_trainval1024.json
      └── images
 ```
+For data preparation with data augmentation, refer to "DOTA_devkit/prepare_dota1_v2.py"
+
 
 
 ## Inference with pretrained models

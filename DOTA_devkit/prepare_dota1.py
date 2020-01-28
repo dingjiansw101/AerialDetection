@@ -4,7 +4,7 @@ import ImgSplit_multi_process
 import SplitOnlyImage_multi_process
 import shutil
 from multiprocessing import Pool
-from DOTA2COCO2 import DOTA2COCOTest, DOTA2COCOTrain
+from DOTA2COCO import DOTA2COCOTest, DOTA2COCOTrain
 import argparse
 
 wordname_15 = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship', 'tennis-court',
@@ -60,16 +60,9 @@ def getnamelist(srcpath, dstfile):
 def prepare(srcpath, dstpath):
     """
     :param srcpath: train, val, test
-
-          train --> train1024, val --> val1024, test --> test1024
-          generate train1024.txt, val1024.txt, test1024.txt
-          cp train1024, val1024, test1024 --> 1024split
+          train --> trainval1024, val --> trainval1024, test --> test1024
     :return:
     """
-    # if not os.path.exists(os.path.join(dstpath, 'train1024')):
-    #     os.mkdir(os.path.join(dstpath, 'train1024'))
-    # if not os.path.exists(os.path.join(dstpath, 'val1024')):
-    #     os.mkdir(os.path.join(dstpath, 'val1024'))
     if not os.path.exists(os.path.join(dstpath, 'test1024')):
         os.mkdir(os.path.join(dstpath, 'test1024'))
     if not os.path.exists(os.path.join(dstpath, 'trainval1024')):
@@ -98,23 +91,12 @@ def prepare(srcpath, dstpath):
                       num_process=32
                       )
     split_test.splitdata(1)
-    # split.splitdata(0.5)
 
-    # getnamelist(os.path.join(dstpath, 'trainval1024', 'images'), os.path.join(dstpath, 'train.txt'))
-    # getnamelist(os.path.join(dstpath, 'test1024', 'images'), os.path.join(dstpath, 'test.txt'))
-
-    # filecopy(os.path.join(srcpath, 'trainval1024', 'images'), os.path.join(srcpath, 'images'))
-    # filecopy(os.path.join(srcpath, 'trainval1024', 'labelTxt'), os.path.join(srcpath, 'labelTxt'))
-
-    # filecopy(os.path.join(srcpath, 'test1024', 'images'), os.path.join(srcpath, 'images'))
-
-    DOTA2COCOTrain(os.path.join(dstpath, 'trainval1024'), os.path.join(dstpath, 'trainval1024', 'DOTA_trainval1024.json'), wordname_15)
+    DOTA2COCOTrain(os.path.join(dstpath, 'trainval1024'), os.path.join(dstpath, 'trainval1024', 'DOTA_trainval1024.json'), wordname_15, difficult='-1')
     DOTA2COCOTest(os.path.join(dstpath, 'test1024'), os.path.join(dstpath, 'test1024', 'DOTA_test1024.json'), wordname_15)
 
 if __name__ == '__main__':
     args = parse_args()
     srcpath = args.srcpath
     dstpath = args.dstpath
-    # print('srcpath: ', srcpath)
-    # print('dstpath: ', dstpath)
     prepare(srcpath, dstpath)

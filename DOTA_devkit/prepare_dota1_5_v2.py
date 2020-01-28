@@ -4,9 +4,20 @@ import ImgSplit_multi_process
 import SplitOnlyImage_multi_process
 import shutil
 from multiprocessing import Pool
-from DOTA2COCO2 import DOTA2COCOTest, DOTA2COCOTrain
+from DOTA2COCO import DOTA2COCOTest, DOTA2COCOTrain
+import argparse
+
 wordname_16 = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship', 'tennis-court',
                 'basketball-court', 'storage-tank',  'soccer-ball-field', 'roundabout', 'harbor', 'swimming-pool', 'helicopter', 'container-crane']
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='prepare dota1')
+    parser.add_argument('--srcpath', default='/home/dingjian/project/dota')
+    parser.add_argument('--dstpath', default=r'/home/dingjian/workfs/dota1-split-1024',
+                        help='prepare data')
+    args = parser.parse_args()
+
+    return args
 
 def single_copy(src_dst_tuple):
     shutil.copyfile(*src_dst_tuple)
@@ -46,64 +57,77 @@ def getnamelist(srcpath, dstfile):
             basename = util.mybasename(file)
             f_out.write(basename + '\n')
 
-def prepare(srcpath):
+def prepare(srcpath, dstpath):
     """
     :param srcpath: train, val, test
-
-          train --> train1024, val --> val1024, test --> test1024
-          generate train1024.txt, val1024.txt, test1024.txt
-          cp train1024, val1024, test1024 --> 1024split
+          train --> trainval1024, val --> trainval1024, test --> test1024
     :return:
     """
-    if not os.path.exists(os.path.join(srcpath, 'train1024')):
-        os.mkdir(os.path.join(srcpath, 'train1024'))
-    if not os.path.exists(os.path.join(srcpath, 'val1024')):
-        os.mkdir(os.path.join(srcpath, 'val1024'))
-    if not os.path.exists(os.path.join(srcpath, 'test-dev1024')):
-        os.mkdir(os.path.join(srcpath, 'test-dev1024'))
-    if not os.path.exists(os.path.join(srcpath, 'trainval1024')):
-        os.mkdir(os.path.join(srcpath, 'trainval1024'))
-    if not os.path.exists(os.path.join(srcpath, 'images')):
-        os.mkdir(os.path.join(srcpath, 'images'))
-    if not os.path.exists(os.path.join(srcpath, 'labelTxt')):
-        os.mkdir(os.path.join(srcpath, 'labelTxt'))
+    if not os.path.exists(os.path.join(dstpath, 'test1024')):
+        os.makedirs(os.path.join(dstpath, 'test1024'))
+    if not os.path.exists(os.path.join(dstpath, 'test1024_ms')):
+        os.makedirs(os.path.join(dstpath, 'test1024_ms'))
+    if not os.path.exists(os.path.join(dstpath, 'trainval1024')):
+        os.makedirs(os.path.join(dstpath, 'trainval1024'))
+    if not os.path.exists(os.path.join(dstpath, 'trainval1024_ms')):
+        os.makedirs(os.path.join(dstpath, 'trainval1024_ms'))
 
     split_train = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'train'),
-                       os.path.join(srcpath, 'trainval1024'),
+                       os.path.join(dstpath, 'trainval1024'),
                       gap=500,
                       subsize=1024,
                       num_process=32
                       )
     split_train.splitdata(1)
 
+    split_train_ms = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'train'),
+                        os.path.join(dstpath, 'trainval1024_ms'),
+                        gap=500,
+                        subsize=1024,
+                        num_process=32)
+    split_train_ms.splitdata(0.5)
+    split_train_ms.splitdata(1.5)
+
     split_val = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'val'),
-                       os.path.join(srcpath, 'trainval1024'),
+                       os.path.join(dstpath, 'trainval1024'),
                       gap=500,
                       subsize=1024,
                       num_process=32
                       )
     split_val.splitdata(1)
 
-    split_test = SplitOnlyImage_multi_process.splitbase(os.path.join(srcpath, 'test-dev', 'images'),
-                       os.path.join(srcpath, 'test-dev1024', 'images'),
+    split_val_ms = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'val'),
+                        os.path.join(dstpath, 'trainval1024_ms'),
+                        gap=500,
+                        subsize=1024,
+                        num_process=32)
+    split_val_ms.splitdata(0.5)
+    split_val_ms.splitdata(1.5)
+
+    split_test = SplitOnlyImage_multi_process.splitbase(os.path.join(srcpath, 'test', 'images'),
+                       os.path.join(dstpath, 'test1024', 'images'),
                       gap=500,
                       subsize=1024,
                       num_process=32
                       )
     split_test.splitdata(1)
-    # split.splitdata(0.5)
 
-    getnamelist(os.path.join(srcpath, 'trainval1024', 'images'), os.path.join(srcpath, 'train.txt'))
-    getnamelist(os.path.join(srcpath, 'test-dev1024', 'images'), os.path.join(srcpath, 'test.txt'))
+    split_test_ms = SplitOnlyImage_multi_process.splitbase(os.path.join(srcpath, 'test', 'images'),
+                       os.path.join(dstpath, 'test1024_ms', 'images'),
+                      gap=500,
+                      subsize=1024,
+                      num_process=32
+                      )
+    split_test_ms.splitdata(0.5)
+    split_test_ms.splitdata(1.5)
 
-    filecopy(os.path.join(srcpath, 'trainval1024', 'images'), os.path.join(srcpath, 'images'))
-    filecopy(os.path.join(srcpath, 'trainval1024', 'labelTxt'), os.path.join(srcpath, 'labelTxt'))
+    DOTA2COCOTrain(os.path.join(dstpath, 'trainval1024'), os.path.join(dstpath, 'trainval1024', 'DOTA1_5_trainval1024.json'), wordname_16, difficult='2')
+    DOTA2COCOTrain(os.path.join(dstpath, 'trainval1024_ms'), os.path.join(dstpath, 'trainval1024_ms', 'DOTA1_5_trainval1024_ms.json'), wordname_16, difficult='2')
 
-    filecopy(os.path.join(srcpath, 'test-dev1024', 'images'), os.path.join(srcpath, 'images'))
-
-    DOTA2COCOTrain(r'/home/dingjian/project/dota2/trainval1024', r'/home/dingjian/project/dota2/trainval1024/DOTA_trainval1024.json', wordname_18)
-    DOTA2COCOTest(r'/home/dingjian/project/dota2/test-dev1024', r'/home/dingjian/project/dota2/test-dev1024/DOTA_test-dev1024.json', wordname_18)
+    DOTA2COCOTest(os.path.join(dstpath, 'test1024'), os.path.join(dstpath, 'test1024', 'DOTA1_5_test1024.json'), wordname_16)
+    DOTA2COCOTest(os.path.join(dstpath, 'test1024_ms'), os.path.join(dstpath, 'test1024_ms', 'DOTA1_5_test1024_ms.json'), wordname_16)
 if __name__ == '__main__':
-    # filecopy(r'/data/dota2/test-dev1024/images',
-    #          r'/data/dota2/1024_split/images')
-    prepare(r'/home/dingjian/project/dota2')
+    args = parse_args()
+    srcpath = args.srcpath
+    dstpath = args.dstpath
+    prepare(srcpath, dstpath)
