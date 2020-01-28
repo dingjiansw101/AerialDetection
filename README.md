@@ -38,9 +38,9 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Benchmark and model zoo
 
-We provide a large set of baseline results and trained models available in the [Model zoo](MODEL_ZOO.md).
-You can find the detailed configs in configs/DOTA.
-
+- Results are available in the [Model zoo](MODEL_ZOO.md).
+- You can find the detailed configs in configs/DOTA.
+- The trained models are available at [Google Drive](https://drive.google.com/drive/folders/1IsVLm7Yrwo18jcx0XjnCzFQQaf1WQEv8?usp=sharing) or [Baidu Drive](https://pan.baidu.com/s/1aPeoPaQ0BJTuCsGt_DrdmQ).
 ## Installation
 
 

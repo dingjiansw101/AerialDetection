@@ -103,7 +103,7 @@ class DetectorModel():
         return total_detections
     def inference_single_vis(self, srcpath, dstpath, slide_size, chip_size):
         detections = self.inference_single(srcpath, slide_size, chip_size)
-        img = draw_poly_detections(srcpath, detections, self.classnames, scale=1, threshold=0.001)
+        img = draw_poly_detections(srcpath, detections, self.classnames, scale=1, threshold=0.1)
         cv2.imwrite(dstpath, img)
 
 if __name__ == '__main__':
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                   r'work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota/epoch_12.pth')
 
     roitransformer.inference_single_vis(r'demo/P0009.jpg',
-                                       r'demo/P0009.jpg',
+                                       r'demo/P0009_out.jpg',
                                         (512, 512),
                                        (1024, 1024))
 
