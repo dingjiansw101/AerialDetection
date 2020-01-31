@@ -58,6 +58,13 @@ if [ -d "build" ]; then
 fi
 $PYTHON setup.py build_ext --inplace
 
+echo "Building poly_nms op..."
+cd ../poly_nms
+if [ -d "build" ]; then
+    rm -r build
+fi
+$PYTHON setup.py build_ext --inplace
+
 echo "Building cpu_nms..."
 cd ../../core/bbox
 $PYTHON setup_linux.py build_ext --inplace
