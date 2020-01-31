@@ -21,7 +21,7 @@ def parse_args():
 
 def single_copy(src_dst_tuple):
     shutil.copyfile(*src_dst_tuple)
-def filecopy(srcpath, dstpath, num_process=32):
+def filecopy(srcpath, dstpath, num_process=16):
     pool = Pool(num_process)
     filelist = util.GetFileFromThisRootDir(srcpath)
 
@@ -37,7 +37,7 @@ def filecopy(srcpath, dstpath, num_process=32):
 def singel_move(src_dst_tuple):
     shutil.move(*src_dst_tuple)
 
-def filemove(srcpath, dstpath, num_process=32):
+def filemove(srcpath, dstpath, num_process=16):
     pool = Pool(num_process)
     filelist = util.GetFileFromThisRootDir(srcpath)
 
@@ -76,7 +76,7 @@ def prepare(srcpath, dstpath):
                        os.path.join(dstpath, 'trainval1024'),
                       gap=500,
                       subsize=1024,
-                      num_process=32
+                      num_process=16
                       )
     split_train.splitdata(1)
 
@@ -84,7 +84,7 @@ def prepare(srcpath, dstpath):
                         os.path.join(dstpath, 'trainval1024_ms'),
                         gap=500,
                         subsize=1024,
-                        num_process=32)
+                        num_process=16)
     split_train_ms.splitdata(0.5)
     split_train_ms.splitdata(1.5)
 
@@ -92,7 +92,7 @@ def prepare(srcpath, dstpath):
                        os.path.join(dstpath, 'trainval1024'),
                       gap=500,
                       subsize=1024,
-                      num_process=32
+                      num_process=16
                       )
     split_val.splitdata(1)
 
@@ -100,7 +100,7 @@ def prepare(srcpath, dstpath):
                         os.path.join(dstpath, 'trainval1024_ms'),
                         gap=500,
                         subsize=1024,
-                        num_process=32)
+                        num_process=16)
     split_val_ms.splitdata(0.5)
     split_val_ms.splitdata(1.5)
 
@@ -108,7 +108,7 @@ def prepare(srcpath, dstpath):
                        os.path.join(dstpath, 'test1024', 'images'),
                       gap=500,
                       subsize=1024,
-                      num_process=32
+                      num_process=16
                       )
     split_test.splitdata(1)
 
@@ -116,7 +116,7 @@ def prepare(srcpath, dstpath):
                        os.path.join(dstpath, 'test1024_ms', 'images'),
                       gap=500,
                       subsize=1024,
-                      num_process=32
+                      num_process=16
                       )
     split_test_ms.splitdata(0.5)
     split_test_ms.splitdata(1.5)
