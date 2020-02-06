@@ -23,6 +23,6 @@
 ## Baselines
 
 More benchmark results based on the code are on the way.
-- Baseline results on DOTA (without data augmentation)
+- Baseline results on DOTA (R-FPN-50, without data augmentation)
 ![benchmarks](benchmarks-dota.png)
 

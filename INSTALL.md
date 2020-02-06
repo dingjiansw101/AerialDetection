@@ -4,7 +4,7 @@
 
 - Linux
 - Python 3.5+ ([Say goodbye to Python2](https://python3statement.org/))
-- PyTorch 1.0+ or PyTorch-nightly
+- PyTorch 1.1
 - CUDA 9.0+
 - NCCL 2+
 - GCC 4.9+
@@ -46,7 +46,7 @@ d. Compile cuda extensions.
 e. Install AerialDetection (other dependencies will be installed automatically).
 
 ```shell
-pip install mmcv
+pip install -r requirements.txt
 python setup.py develop
 # or "pip install -e ."
 ```

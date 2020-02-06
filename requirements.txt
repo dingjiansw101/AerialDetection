@@ -1,0 +1,4 @@
+Cython
+mmcv
+shapely
+tqdm

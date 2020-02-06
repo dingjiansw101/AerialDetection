@@ -36,8 +36,9 @@ dota1_1024
      ├── DOTA_trainval1024.json
      └── images
 ```
-For data preparation with data augmentation, refer to "DOTA_devkit/prepare_dota1_v2.py"
+For data preparation with data augmentation, refer to "DOTA_devkit/prepare_dota1_aug.py"
 
+For data preparation of dota1.5, refer to "DOTA_devkit/prepare_dota1_5.py" and "DOTA_devkit/prepare_dota1_5_aug.py"
 
 
 ## Inference with pretrained models
