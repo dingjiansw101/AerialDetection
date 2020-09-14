@@ -1,6 +1,6 @@
 #include <torch/extension.h>
 
-#define CHECK_CUDA(x) AT_CHECK(x.type().is_cuda(), #x, " must be a CUDAtensor ")
+#define CHECK_CUDA(x) TORCH_CHECK(x.type().is_cuda(), #x, " must be a CUDAtensor ")
 
 at::Tensor poly_nms_cuda(const at::Tensor boxes, float nms_overlap_thresh);
 
