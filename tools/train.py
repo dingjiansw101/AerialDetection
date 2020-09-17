@@ -9,6 +9,7 @@ from mmdet.apis import (train_detector, init_dist, get_root_logger,
                         set_random_seed)
 from mmdet.models import build_detector
 import torch
+import os
 
 
 def parse_args():
@@ -49,6 +50,8 @@ def main():
     # update configs according to CLI args
     if args.work_dir is not None:
         cfg.work_dir = args.work_dir
+    if not os.path.exists(cfg.work_dir):
+        os.makedirs(cfg.work_dir)
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from
     cfg.gpus = args.gpus
@@ -72,7 +75,8 @@ def main():
     model = build_detector(
         cfg.model, train_cfg=cfg.train_cfg, test_cfg=cfg.test_cfg)
 
-    train_dataset = get_dataset(cfg.data.train)
+    train_dataset, dataset_dicts = get_dataset(cfg.data.train)
+
     if cfg.checkpoint_config is not None:
         # save mmdet version, config file content and class names in
         # checkpoints as meta data
@@ -88,7 +92,8 @@ def main():
         cfg,
         distributed=distributed,
         validate=args.validate,
-        logger=logger)
+        logger=logger,
+        dataset_dicts=dataset_dicts)
 
 
 if __name__ == '__main__':

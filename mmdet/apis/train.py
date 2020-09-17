@@ -1,19 +1,51 @@
 from __future__ import division
 
+import os
 import re
 from collections import OrderedDict
 
 import torch
 from mmcv.runner import Runner, DistSamplerSeedHook, obj_from_dict
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
+import mmcv
 
 from mmdet import datasets
 from mmdet.core import (DistOptimizerHook, DistEvalmAPHook,
                         CocoDistEvalRecallHook, CocoDistEvalmAPHook)
 from mmdet.datasets import build_dataloader
 from mmdet.models import RPN
+import logging
 from .env import get_root_logger
 
+def _init_logger(log_dir=None, level=logging.INFO):
+    """Init the logger.
+    Args:
+        log_dir(str, optional): Log file directory. If not specified, no
+            log file will be used.
+        level (int or str): See the built-in python logging module.
+    Returns:
+        :obj:`~logging.Logger`: Python logger.
+    """
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(message)s', level=level)
+    logger = logging.getLogger(__name__)
+    if log_dir:
+        filename = '{}.log'.format(mmcv.runner.utils.get_time_str())
+        log_file = os.path.join(log_dir, filename)
+        logger = _add_file_handler(logger, log_file, level=level)
+    return logger
+
+def _add_file_handler(logger,
+                      filename=None,
+                      mode='w',
+                      level=logging.INFO):
+    # TODO: move this method out of runner
+    file_handler = logging.FileHandler(filename, mode)
+    file_handler.setFormatter(
+        logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    file_handler.setLevel(level)
+    logger.addHandler(file_handler)
+    return logger
 
 def parse_losses(losses):
     log_vars = OrderedDict()
@@ -50,15 +82,16 @@ def train_detector(model,
                    cfg,
                    distributed=False,
                    validate=False,
-                   logger=None):
+                   logger=None,
+                   **kwargs):
     if logger is None:
         logger = get_root_logger(cfg.log_level)
 
     # start training
     if distributed:
-        _dist_train(model, dataset, cfg, validate=validate)
+        _dist_train(model, dataset, cfg, validate=validate, **kwargs)
     else:
-        _non_dist_train(model, dataset, cfg, validate=validate)
+        _non_dist_train(model, dataset, cfg, validate=validate, **kwargs)
 
 
 def build_optimizer(model, optimizer_cfg):
@@ -131,14 +164,16 @@ def build_optimizer(model, optimizer_cfg):
         return optimizer_cls(params, **optimizer_cfg)
 
 
-def _dist_train(model, dataset, cfg, validate=False):
+def _dist_train(model, dataset, cfg, validate=False, **kwargs):
     # prepare data loaders
     data_loaders = [
         build_dataloader(
             dataset,
             cfg.data.imgs_per_gpu,
             cfg.data.workers_per_gpu,
-            dist=True)
+            dist=True,
+            repeat_samples=cfg.train_cfg.repeat_samples,
+            **kwargs)
     ]
     # put model on gpus
     model = MMDistributedDataParallel(model.cuda())
@@ -171,7 +206,7 @@ def _dist_train(model, dataset, cfg, validate=False):
     runner.run(data_loaders, cfg.workflow, cfg.total_epochs)
 
 
-def _non_dist_train(model, dataset, cfg, validate=False):
+def _non_dist_train(model, dataset, cfg, validate=False, **kwargs):
     # prepare data loaders
     data_loaders = [
         build_dataloader(
@@ -179,14 +214,17 @@ def _non_dist_train(model, dataset, cfg, validate=False):
             cfg.data.imgs_per_gpu,
             cfg.data.workers_per_gpu,
             cfg.gpus,
-            dist=False)
+            dist=False,
+            repeat_samples=cfg.train_cfg.repeat_samples,
+            **kwargs)
     ]
     # put model on gpus
     model = MMDataParallel(model, device_ids=range(cfg.gpus)).cuda()
     # build runner
     optimizer = build_optimizer(model, cfg.optimizer)
+    logger = _init_logger(log_dir=cfg.work_dir, level=getattr(logging, cfg.log_level))
     runner = Runner(model, batch_processor, optimizer, cfg.work_dir,
-                    cfg.log_level)
+                    logger)
     runner.register_training_hooks(cfg.lr_config, cfg.optimizer_config,
                                    cfg.checkpoint_config, cfg.log_config)
 

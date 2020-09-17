@@ -102,15 +102,18 @@ def get_dataset(data_cfg):
     assert len(img_prefixes) == num_dset
 
     dsets = []
+    dataset_dicts = dict()
+
     for i in range(num_dset):
         data_info = copy.deepcopy(data_cfg)
         data_info['ann_file'] = ann_files[i]
         data_info['proposal_file'] = proposal_files[i]
         data_info['img_prefix'] = img_prefixes[i]
         dset = obj_from_dict(data_info, datasets)
+        dataset_dicts.update(dset.get_anns())
         dsets.append(dset)
     if len(dsets) > 1:
         dset = ConcatDataset(dsets)
     else:
         dset = dsets[0]
-    return dset
+    return dset, dataset_dicts

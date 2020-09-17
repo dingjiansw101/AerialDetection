@@ -561,7 +561,7 @@ def mask2poly_single(binary_mask):
     :return:
     """
     try:
-        contours, hierarchy = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        image, contours, hierarchy = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         # contour_lens = np.array(list(map(len, contours)))
         # max_id = contour_lens.argmax()
         # max_contour = contours[max_id]

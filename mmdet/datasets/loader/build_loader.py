@@ -5,6 +5,7 @@ from mmcv.parallel import collate
 from torch.utils.data import DataLoader
 
 from .sampler import GroupSampler, DistributedGroupSampler, DistributedSampler
+from .sampler import DistributedRepeatFactorTrainingSampler
 
 # https://github.com/pytorch/pytorch/issues/973
 import resource
@@ -17,13 +18,20 @@ def build_dataloader(dataset,
                      workers_per_gpu,
                      num_gpus=1,
                      dist=True,
+                     repeat_samples=False,
                      **kwargs):
     shuffle = kwargs.get('shuffle', True)
     if dist:
         rank, world_size = get_dist_info()
         if shuffle:
-            sampler = DistributedGroupSampler(dataset, imgs_per_gpu,
+            if repeat_samples:
+                repeat_factor = DistributedRepeatFactorTrainingSampler.repeat_factors_from_category_frequency(kwargs['dataset_dicts'])
+                sampler = RepeatFactorTrainingSampler(dataset, repeat_factors, imgs_per_gpu,
                                               world_size, rank)
+
+            else:
+                sampler = DistributedGroupSampler(dataset, imgs_per_gpu,
+                                                world_size, rank)
         else:
             sampler = DistributedSampler(
                 dataset, world_size, rank, shuffle=False)
@@ -40,7 +48,6 @@ def build_dataloader(dataset,
         sampler=sampler,
         num_workers=num_workers,
         collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu),
-        pin_memory=False,
-        **kwargs)
+        pin_memory=False)
 
     return data_loader

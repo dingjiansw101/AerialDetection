@@ -10,6 +10,12 @@ import DOTA_devkit.polyiou as polyiou
 import math
 import pdb
 
+CLASS_NAMES_KR = ('소형 선박', '대형 선박', '민간 항공기', '군용 항공기', '소형 승용차', '버스', '트럭', '기차', '크레인',
+        '다리', '정유탱크', '댐', '운동경기장', '헬리패드', '원형 교차로')
+CLASS_NAMES_EN = ('small ship', 'large ship', 'civil airplane', 'military airplane', 'small car', 'bus', 'truck', 'train',
+        'crane', 'bridge', 'oiltank', 'dam', 'stadium', 'helipad', 'roundabout')
+CLASS_MAP = {k:v for k, v in zip(CLASS_NAMES_KR, CLASS_NAMES_EN)}
+
 def py_cpu_nms_poly_fast_np(dets, thresh):
     obbs = dets[:, 0:-1]
     x1 = np.min(obbs[:, 0::2], axis=1)
@@ -103,15 +109,38 @@ class DetectorModel():
         return total_detections
     def inference_single_vis(self, srcpath, dstpath, slide_size, chip_size):
         detections = self.inference_single(srcpath, slide_size, chip_size)
-        img = draw_poly_detections(srcpath, detections, self.classnames, scale=1, threshold=0.3)
+        classnames = [cls if cls not in CLASS_MAP else CLASS_MAP[cls] for cls in self.classnames]
+        img = draw_poly_detections(srcpath, detections, classnames, scale=1, threshold=0.3)
         cv2.imwrite(dstpath, img)
 
 if __name__ == '__main__':
-    roitransformer = DetectorModel(r'configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py',
-                  r'work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota/epoch_12.pth')
+    #roitransformer = DetectorModel(r'configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py',
+    #              r'work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota/epoch_12.pth')
+    #roitransformer = DetectorModel(r'configs/roksi2020/retinanet_obb_r50_fpn_2x_roksi2020_mgpu.py',
+    #              r'work_dirs/retinanet_obb_r50_fpn_2x_roksi2020_mgpu/epoch_24.pth')
+    roitransformer = DetectorModel(r'configs/roksi2020/faster_rcnn_RoITrans_r50_fpn_2x_roksi.py',
+                  r'work_dirs/faster_rcnn_RoITrans_r50_fpn_2x_roksi/epoch_24.pth')
+    from glob import glob
+    roksis = glob('data/roksi2020/val/images/*.png')
+    #target = roksis[1]
+    #out = target.split('/')[-1][:-4]+'_out.jpg'
 
-    roitransformer.inference_single_vis(r'demo/P0009.jpg',
-                                       r'demo/P0009_out.jpg',
-                                        (512, 512),
-                                       (1024, 1024))
+    #roitransformer.inference_single_vis(target,
+    #                                    os.path.join('demo', out),
+    #                                    (512, 512),
+    #                                   (1024, 1024))
+    
+    for target in roksis[:100]:
+        out = target.split('/')[-1][:-4]+'_out.jpg'
+        print(os.path.join('demo/fasterrcnn', out))
+
+        roitransformer.inference_single_vis(target,
+                                            os.path.join('demo/fasterrcnn', out),
+                                            (512, 512),
+                                            (1024, 1024))
+
+    #roitransformer.inference_single_vis(r'demo/P0009.jpg',
+    #                                   r'demo/P0009_out.jpg',
+    #                                    (512, 512),
+    #                                   (1024, 1024))
 
