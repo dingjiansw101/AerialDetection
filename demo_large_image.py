@@ -71,7 +71,7 @@ class DetectorModel():
         self.checkpoint_file = checkpoint_file
         self.cfg = Config.fromfile(self.config_file)
         self.data_test = self.cfg.data['test']
-        self.dataset = get_dataset(self.data_test)
+        self.dataset, dataset_dict = get_dataset(self.data_test)
         self.classnames = self.dataset.CLASSES
         self.model = init_detector(config_file, checkpoint_file, device='cuda:0')
 
@@ -116,10 +116,10 @@ class DetectorModel():
 if __name__ == '__main__':
     #roitransformer = DetectorModel(r'configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py',
     #              r'work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota/epoch_12.pth')
-    #roitransformer = DetectorModel(r'configs/roksi2020/retinanet_obb_r50_fpn_2x_roksi2020_mgpu.py',
-    #              r'work_dirs/retinanet_obb_r50_fpn_2x_roksi2020_mgpu/epoch_24.pth')
-    roitransformer = DetectorModel(r'configs/roksi2020/faster_rcnn_RoITrans_r50_fpn_2x_roksi.py',
-                  r'work_dirs/faster_rcnn_RoITrans_r50_fpn_2x_roksi/epoch_24.pth')
+    roitransformer = DetectorModel(r'configs/roksi2020/retinanet_obb_r50_fpn_2x_roksi2020_mgpu_v2.py',
+                    r'work_dirs/retinanet_obb_r50_fpn_2x_roksi2020_v2/epoch_24.pth')
+    #roitransformer = DetectorModel(r'configs/roksi2020/faster_rcnn_RoITrans_r50_fpn_2x_roksi.py',
+    #              r'work_dirs/faster_rcnn_RoITrans_r50_fpn_2x_roksi/epoch_24.pth')
     from glob import glob
     roksis = glob('data/roksi2020/val/images/*.png')
     #target = roksis[1]

@@ -18,7 +18,7 @@ model = dict(
         num_outs=5),
     rbbox_head=dict(
         type='RetinaHeadRbbox',
-        num_classes=16,
+        num_classes=15,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -62,7 +62,7 @@ data_root = 'data/roksi2020/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
-    imgs_per_gpu=16,
+    imgs_per_gpu=8,
     workers_per_gpu=8,
     train=dict(
         type=dataset_type,
@@ -108,7 +108,7 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=1.0 / 3,
     step=[16, 22])
-checkpoint_config = dict(interval=12)
+checkpoint_config = dict(interval=3)
 # yapf:disable
 log_config = dict(
     interval=50,
@@ -118,8 +118,8 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 24
-device_ids = range(8)
+total_epochs = 12
+device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = './work_dirs/retinanet_obb_r50_fpn_2x_roksi2020_v2'

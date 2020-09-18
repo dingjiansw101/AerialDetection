@@ -3,6 +3,7 @@ from __future__ import division
 import math
 import torch
 import numpy as np
+import itertools
 from collections import defaultdict
 
 from torch.distributed import get_world_size, get_rank
@@ -197,17 +198,13 @@ class DistributedRepeatFactorTrainingSampler(Sampler):
                 math.ceil(self.group_sizes[i] * 1.0 / self.samples_per_gpu /
                           self.num_replicas)) * self.samples_per_gpu
         self.total_size = self.num_samples * self.num_replicas
-        ###
-
-        self._world_size = comm.get_world_size()
-        ##
 
         # Split into whole number (_int_part) and fractional (_frac_part) parts.
         self._int_part = torch.trunc(repeat_factors)
         self._frac_part = repeat_factors - self._int_part
         
     @staticmethod
-    def repeat_factors_from_category_frequency(dataset_dicts, repeat_thresh=0.001):
+    def repeat_factors_from_category_frequency(dataset_dict, repeat_thresh=0.001):
         """
         Compute (fractional) per-image repeat factors based on category frequency.
         The repeat factor for an image is a function of the frequency of the rarest
@@ -226,11 +223,10 @@ class DistributedRepeatFactorTrainingSampler(Sampler):
         """
         # 1. For each category c, compute the fraction of images that contain it: f(c)
         category_freq = defaultdict(int)
-        for dataset_dict in dataset_dicts:  # For each image (without repeats)
-            cat_ids = {ann["category_id"] for ann in dataset_dict["annotations"]}
-            for cat_id in cat_ids:
-                category_freq[cat_id] += 1
-        num_images = len(dataset_dicts)
+        cat_ids = {ann["category_id"] for key, ann in dataset_dict.items()}
+        for cat_id in cat_ids:
+            category_freq[cat_id] += 1
+        num_images = len(dataset_dict)
         for k, v in category_freq.items():
             category_freq[k] = v / num_images
 
@@ -244,10 +240,9 @@ class DistributedRepeatFactorTrainingSampler(Sampler):
         # 3. For each image I, compute the image-level repeat factor:
         #    r(I) = max_{c in I} r(c)
         rep_factors = []
-        for dataset_dict in dataset_dicts:
-            cat_ids = {ann["category_id"] for ann in dataset_dict["annotations"]}
-            rep_factor = max({category_rep[cat_id] for cat_id in cat_ids})
-            rep_factors.append(rep_factor)
+        cat_ids = {ann["category_id"] for key, ann in dataset_dict.items()}
+        rep_factor = max({category_rep[cat_id] for cat_id in cat_ids})
+        rep_factors.append(rep_factor)
 
         return torch.tensor(rep_factors, dtype=torch.float32)
 
@@ -278,7 +273,7 @@ class DistributedRepeatFactorTrainingSampler(Sampler):
 
     def _infinite_indices(self):
         g = torch.Generator()
-        g.manual_seed(self.seed)
+        g.manual_seed(self.epoch)
         while True:
             # Sample indices with repeats determined by stochastic rounding; each
             # "epoch" may have a slightly different size due to the rounding.

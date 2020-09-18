@@ -1,15 +1,17 @@
 from __future__ import division
 
 import argparse
-from mmcv import Config
+import time
+import os
+import os.path as osp
 
+from mmcv import Config
 from mmdet import __version__
 from mmdet.datasets import get_dataset
-from mmdet.apis import (train_detector, init_dist, get_root_logger,
-                        set_random_seed)
+from mmdet.apis import (train_detector, init_dist, set_random_seed)
+from mmdet.utils import collect_env, get_root_logger
 from mmdet.models import build_detector
 import torch
-import os
 
 
 def parse_args():
@@ -64,8 +66,24 @@ def main():
         init_dist(args.launcher, **cfg.dist_params)
 
     # init logger before other steps
-    logger = get_root_logger(cfg.log_level)
-    logger.info('Distributed training: {}'.format(distributed))
+    timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+    log_file = osp.join(cfg.work_dir, f'{timestamp}.log')
+    logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
+
+    # init the meta dict to record some important information such as
+    # environment info and seed, which will be logged
+    meta = dict()
+    # log env info
+    env_info_dict = collect_env()
+    env_info = '\n'.join([(f'{k}: {v}') for k, v in env_info_dict.items()])
+    dash_line = '-' * 60 + '\n'
+    logger.info('Environment info:\n' + dash_line + env_info + '\n' +
+                dash_line)
+    meta['env_info'] = env_info
+    meta['config'] = cfg.pretty_text
+    # log some basic info
+    logger.info(f'Distributed training: {distributed}')
+    logger.info(f'Config:\n{cfg.pretty_text}')
 
     # set random seeds
     if args.seed is not None:
@@ -92,7 +110,6 @@ def main():
         cfg,
         distributed=distributed,
         validate=args.validate,
-        logger=logger,
         dataset_dicts=dataset_dicts)
 
 

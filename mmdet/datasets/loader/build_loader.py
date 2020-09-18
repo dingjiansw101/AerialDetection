@@ -25,8 +25,8 @@ def build_dataloader(dataset,
         rank, world_size = get_dist_info()
         if shuffle:
             if repeat_samples:
-                repeat_factor = DistributedRepeatFactorTrainingSampler.repeat_factors_from_category_frequency(kwargs['dataset_dicts'])
-                sampler = RepeatFactorTrainingSampler(dataset, repeat_factors, imgs_per_gpu,
+                repeat_factors = DistributedRepeatFactorTrainingSampler.repeat_factors_from_category_frequency(kwargs['dataset_dicts'])
+                sampler = DistributedRepeatFactorTrainingSampler(dataset, repeat_factors, imgs_per_gpu,
                                               world_size, rank)
 
             else:
