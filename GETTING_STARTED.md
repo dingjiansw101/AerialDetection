@@ -82,7 +82,7 @@ python tools/test.py configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py \
     4 --out work_dirs/mask_rcnn_r50_fpn_1x_dota/results.pkl 
 ```
 
-3. Parse the results.pkl to the format needed for [DOTA evaluation](http://117.78.28.204:8001/)
+3. Parse the results.pkl to the format needed for [DOTA evaluation](http://101.37.84.231:8001)
 
 For methods with only OBB Head, set the type OBB.
 ```
