@@ -62,6 +62,14 @@ We appreciate all contributions to improve benchmarks for object detection in ae
 If you use [DOTA](https://captain-whu.github.io/DOTA/) dataset, codebase or models in your research, please consider cite .
 
 ```
+@misc{ding2021object,
+      title={Object Detection in Aerial Images: A Large-Scale Benchmark and Challenges}, 
+      author={Jian Ding and Nan Xue and Gui-Song Xia and Xiang Bai and Wen Yang and Micheal Ying Yang and Serge Belongie and Jiebo Luo and Mihai Datcu and Marcello Pelillo and Liangpei Zhang},
+      year={2021},
+      eprint={2102.12219},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
 @inproceedings{xia2018dota,
   title={DOTA: A large-scale dataset for object detection in aerial images},
   author={Xia, Gui-Song and Bai, Xiang and Ding, Jian and Zhu, Zhen and Belongie, Serge and Luo, Jiebo and Datcu, Mihai and Pelillo, Marcello and Zhang, Liangpei},
