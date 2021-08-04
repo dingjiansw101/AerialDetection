@@ -36,3 +36,12 @@ The folowing shows the baseline results. For more results, see our [paper](https
 
 - SOTA on DOTA-v1.5.
 ![sota-dota15](sota-dota15.png)
+  
+- Class-wise AP on DOTA-v1.0.
+![sota-dota1-clsap](sota-dota1-clsap.png)
+
+- Class-wise AP on DOTA-v1.5.
+![sota-dota15-clsap](sota-dota15-clsap.png)
+
+- Class-wise AP on DOTA-v2.0.
+![sota-dota2-clsap](sota-dota2-clsap.png)
