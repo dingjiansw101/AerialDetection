@@ -65,8 +65,17 @@ class DetectorModel():
         self.checkpoint_file = checkpoint_file
         self.cfg = Config.fromfile(self.config_file)
         self.data_test = self.cfg.data['test']
-        self.dataset = get_dataset(self.data_test)
-        self.classnames = self.dataset.CLASSES
+        CLASSES = ('plane', 'baseball-diamond',
+                'bridge', 'ground-track-field',
+                'small-vehicle', 'large-vehicle',
+                'ship', 'tennis-court',
+                'basketball-court', 'storage-tank',
+                'soccer-ball-field', 'roundabout',
+                'harbor', 'swimming-pool',
+                'helicopter')
+        # self.dataset = get_dataset(self.data_test)
+        # self.classnames = self.dataset.CLASSES
+        self.classnames = CLASSES
         self.model = init_detector(config_file, checkpoint_file, device='cuda:0')
 
     def inference_single(self, imagname, slide_size, chip_size):
