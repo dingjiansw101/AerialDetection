@@ -12,8 +12,8 @@ wordname_15 = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'sma
 
 def parse_args():
     parser = argparse.ArgumentParser(description='prepare dota1')
-    parser.add_argument('--srcpath', default='/home/dingjian/project/dota')
-    parser.add_argument('--dstpath', default=r'/home/dingjian/workfs/dota1-split-1024',
+    parser.add_argument('--srcpath', default='/content/AerialDetection/data/dota')
+    parser.add_argument('--dstpath', default=r'/content/AerialDetection/data/dota1-split-1024',
                         help='prepare data')
     args = parser.parse_args()
 
