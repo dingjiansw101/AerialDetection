@@ -12,16 +12,16 @@ from sys import version_info
 if version_info >= (2, 6, 0):
     def swig_import_helper():
         from os.path import dirname
-        import imp
+        import importlib
         fp = None
         try:
-            fp, pathname, description = imp.find_module('_polyiou', [dirname(__file__)])
+            fp, pathname, description = importlib.find_module('_polyiou', [dirname(__file__)])
         except ImportError:
             import _polyiou
             return _polyiou
         if fp is not None:
             try:
-                _mod = imp.load_module('_polyiou', fp, pathname, description)
+                _mod = importlib.load_module('_polyiou.cpython-37m-x86_64-linux-gnu.so', fp, pathname, description)
             finally:
                 fp.close()
             return _mod
