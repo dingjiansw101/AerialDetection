@@ -102,7 +102,7 @@ test_cfg = dict(
 )
 # dataset settings
 dataset_type = 'DOTADataset'
-data_root = 'data/dota1_1024/'
+data_root = '/content/AerialDetection/data/dota1-split-1024/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
